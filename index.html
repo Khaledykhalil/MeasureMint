@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MeasureMint - Professional Measurement Tool</title>
+  <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: #fafbfc;
+      color: #2d3748;
+      line-height: 1.5;
+    }
+
+    .app-container {
+      max-width: 400px;
+      margin: 0 auto;
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .header .subtitle {
+      font-size: 12px;
+      opacity: 0.9;
+      margin-top: 4px;
+    }
+
+    .content {
+      padding: 24px;
+    }
+
+    .status-bar {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 20px;
+      font-size: 13px;
+      color: #4a5568;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-indicator {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #48bb78;
+    }
+
+    .status-indicator.warning {
+      background: #ed8936;
+    }
+
+    .status-indicator.error {
+      background: #f56565;
+    }
+
+    .toolbar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .btn {
+      padding: 12px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: white;
+      color: #4a5568;
+    }
+
+    .btn:hover:not(:disabled) {
+      border-color: #667eea;
+      color: #667eea;
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-primary {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #5a67d8;
+      border-color: #5a67d8;
+      color: white;
+    }
+
+    .btn-success {
+      background: #48bb78;
+      color: white;
+      border-color: #48bb78;
+    }
+
+    .btn-success:hover:not(:disabled) {
+      background: #38a169;
+      border-color: #38a169;
+      color: white;
+    }
+
+    .btn-active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.2);
+    }
+
+    .unit-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .unit-btn {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      background: white;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .unit-btn:hover {
+      border-color: #667eea;
+      color: #667eea;
+    }
+
+    .unit-btn.active {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+
+    .info-panel {
+      background: #f7fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    .info-panel.calibrate {
+      background: #f0fff4;
+      border-color: #48bb78;
+      color: #2f855a;
+    }
+
+    .info-panel.measure {
+      background: #ebf8ff;
+      border-color: #667eea;
+      color: #2b6cb0;
+    }
+
+    .measurement-display {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+
+    .measurement-value {
+      font-size: 24px;
+      font-weight: 600;
+      color: #2d3748;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+
+    .measurement-unit {
+      font-size: 14px;
+      color: #718096;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .unit-system-selector {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .unit-system-btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 6px;
+      background: white;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .unit-system-btn:hover {
+      border-color: #4262ff;
+    }
+
+    .unit-system-btn.active {
+      background: #4262ff;
+      color: white;
+      border-color: #4262ff;
+    }
+
+    .unit-details {
+      margin-top: 16px;
+      padding: 12px;
+      background: #eff6ff;
+      border-radius: 6px;
+      border: 1px solid #bfdbfe;
+    }
+
+    .unit-details h4 {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #1e40af;
+    }
+
+    .unit-details p {
+      font-size: 12px;
+      color: #1e3a8a;
+      margin-bottom: 4px;
+    }
+
+    .conversion-table {
+      margin-top: 16px;
+      font-size: 12px;
+    }
+
+    .conversion-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .conversion-table th,
+    .conversion-table td {
+      padding: 8px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .conversion-table th {
+      background: #f9fafb;
+      font-weight: 600;
+      color: #374151;
+    }
+
+    .measurements-list {
+      margin-top: 16px;
+    }
+
+    .measurements-list h3 {
+      font-size: 16px;
+      margin-bottom: 12px;
+      color: #1a1a1a;
+    }
+
+    .measurement-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .measurement-label {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .measurement-value {
+      font-weight: 600;
+      color: #4262ff;
+      font-size: 14px;
+    }
+
+    .measurement-conversions {
+      font-size: 11px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 450px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-content h3 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: #1a1a1a;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #374151;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    .unit-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .unit-option {
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .unit-option:hover {
+      border-color: #4262ff;
+      background: #f0f4ff;
+    }
+
+    .unit-option.selected {
+      border-color: #4262ff;
+      background: #dbeafe;
+    }
+
+    .unit-option-name {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .unit-option-abbr {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .modal-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 20px;
+    }
+
+    .modal-buttons button {
+      flex: 1;
+    }
+
+    .toggle-details {
+      background: none;
+      border: none;
+      color: #4262ff;
+      font-size: 12px;
+      cursor: pointer;
+      padding: 4px 8px;
+      margin-top: 8px;
+    }
+
+    .toggle-details:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="header">
+      <h1>
+        <span>📏</span>
+        MeasureMint
+      </h1>
+      <div class="subtitle">Professional Measurement Tool</div>
+    </div>
+
+    <div class="content">
+      <div id="status" class="status-bar">
+        <div class="status-indicator"></div>
+        <span>Ready to measure</span>
+      </div>
+
+      <div class="toolbar">
+        <button id="selectImageBtn" class="btn">
+          <span>🖼️</span> Select Image
+        </button>
+        <button id="calibrateBtn" class="btn btn-success" disabled>
+          <span>⚙️</span> Calibrate
+        </button>
+        <button id="measureBtn" class="btn btn-primary" disabled>
+          <span>📏</span> Measure
+        </button>
+        <button id="clearBtn" class="btn" disabled>
+          <span>🗑️</span> Clear
+        </button>
+      </div>
+
+      <div class="unit-selector">
+        <button class="unit-btn active" data-system="imperial">
+          🇺🇸 Imperial
+        </button>
+        <button class="unit-btn" data-system="metric">
+          🌍 Metric
+        </button>
+      </div>
+
+      <div id="calibrateInfo" class="info-panel calibrate" style="display: none;">
+        <strong>Calibration Mode:</strong> Click two points on a known distance, then enter the actual measurement.
+      </div>
+
+      <div id="measureInfo" class="info-panel measure" style="display: none;">
+        <strong>Measurement Mode:</strong> Click two points to measure the distance between them.
+      </div>
+
+      <div id="measurementDisplay" class="measurement-display" style="display: none;">
+        <div class="measurement-value" id="measurementValue">0.00</div>
+        <div class="measurement-unit" id="measurementUnit">ft</div>
+      </div>
+
+      <div id="calibrationModal" class="modal">
+        <div class="modal-content">
+          <h3>Enter Known Distance</h3>
+          <div class="form-group">
+            <label>Select the unit for your known distance:</label>
+            <div id="unitGrid" class="unit-grid"></div>
+          </div>
+          <div class="form-group">
+            <label id="distanceLabel">Enter the distance:</label>
+            <input type="number" id="distanceInput" placeholder="Enter distance" step="0.01" autofocus>
+          </div>
+          <div class="modal-buttons">
+            <button id="setCalibrationBtn" class="btn btn-success">
+              <span>✓</span> Set Calibration
+            </button>
+            <button id="cancelCalibrationBtn" class="btn">Cancel</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="measuremint.js"></script>
+</body>
+</html>

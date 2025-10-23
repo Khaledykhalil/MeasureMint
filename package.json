@@ -1,0 +1,13 @@
+{
+  "name": "measuremint",
+  "version": "1.0.0",
+  "description": "MeasureMint is a Miro application that provides measurement and calibration functionality for technical drawings, blueprints, floor plans, and images on Miro boards.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}
