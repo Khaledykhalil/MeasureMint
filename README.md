@@ -1,6 +1,6 @@
-# 📏 MiroMeasure
+# 📏 MeasureMint for Miro
 
-**Professional measurement and calibration tool for Miro boards** - similar to Bluebeam Revu's calibrate and measure functionality.
+**Professional measurement and calibration tool for Miro boards**
 
 ![Version](https://img.shields.io/badge/version-1.0.0-blue)
 ![License](https://img.shields.io/badge/license-MIT-green)
@@ -38,8 +38,8 @@ Perfect for:
 
 1. **Clone the repository**
 ```bash
-   git clone https://github.com/YOUR-USERNAME/miromeasure.git
-   cd miromeasure
+   git clone https://github.com/YOUR-USERNAME/measuremint.git
+   cd measuremint
 ```
 
 2. **Install dependencies**
@@ -59,7 +59,7 @@ Perfect for:
 1. Go to [Miro App Settings](https://miro.com/app/settings/user-profile/apps/)
 2. Click "Create new app"
 3. Configure:
-   - **App name**: MiroMeasure
+   - **App name**: MeasureMint
    - **App URL**: `http://localhost:3000`
    - **Redirect URI**: `http://localhost:3000/`
    - **Permissions**: `boards:read`, `boards:write`
@@ -90,7 +90,7 @@ Toggle between Imperial (🇺🇸) and Metric (🌍) systems or change specific 
 
 ### Project Structure
 
-miromeasure/
+measuremint/
 ├── LICENSE                 # License 
 ├── index.html              # Main app interface
 ├── app.js                  # Application logic
@@ -162,7 +162,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Miro Marketplace](https://miro.com/marketplace/) - Coming soon!
 - [Miro Developer Platform](https://developers.miro.com)
 - [Miro SDK Documentation](https://developers.miro.com/docs/)
-- [Report Issues](https://github.com/YOUR-USERNAME/miromeasure/issues)
+- [Report Issues](https://github.com/YOUR-USERNAME/measuremint/issues)
 
 ## 👤 Author
 
@@ -192,6 +192,6 @@ None currently. Please report any issues on GitHub!
 
 ---
 
-**MiroMeasure** - Making measurements on Miro as easy as they should be.
+**MeasureMint** - Making measurements on Miro as easy as they should be.
 
 Made with ❤️ for architects, engineers, and construction professionals.
