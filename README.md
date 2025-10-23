@@ -121,19 +121,6 @@ vercel
 
 See full deployment guide in documentation.
 
-## 💰 Pricing Recommendation
-
-**Professional Plan**: $12-15/user/month
-- Unlimited measurements
-- All unit types
-- Measurement history
-- Priority support
-
-**Team Plan**: $49/team/month (up to 10 users)
-- Everything in Professional
-- Shared calibrations
-- Team measurement library
-
 ## 📋 Marketplace Requirements
 
 - [x] Privacy Policy
