@@ -1,4 +1,4 @@
-# 📏 MiroMeasure
+# 📏 MeasureMint for Miro
 
 **Professional measurement and calibration tool for Miro boards** - similar to Bluebeam Revu's calibrate and measure functionality.
 
@@ -59,7 +59,7 @@ Perfect for:
 1. Go to [Miro App Settings](https://miro.com/app/settings/user-profile/apps/)
 2. Click "Create new app"
 3. Configure:
-   - **App name**: MiroMeasure
+   - **App name**: MeasureMint
    - **App URL**: `http://localhost:3000`
    - **Redirect URI**: `http://localhost:3000/`
    - **Permissions**: `boards:read`, `boards:write`
@@ -192,6 +192,6 @@ None currently. Please report any issues on GitHub!
 
 ---
 
-**MiroMeasure** - Making measurements on Miro as easy as they should be.
+**MeasureMint** - Making measurements on Miro as easy as they should be.
 
 Made with ❤️ for architects, engineers, and construction professionals.
