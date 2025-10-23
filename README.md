@@ -153,10 +153,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👤 Author
 
-**YOUR_NAME**
-- GitHub: [@YOUR-USERNAME](https://github.com/YOUR-USERNAME)
-- Email: your.email@example.com
-- Website: https://yourwebsite.com
+**Khaled Khalil**
+- GitHub: [@khaledykhalil](https://github.com/YOUR-USERNAME)
+- Email: khaledykhalil09@gmail.com
 
 ## 🙏 Acknowledgments
 
