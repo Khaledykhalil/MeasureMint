@@ -114,18 +114,36 @@ const CONVERSIONS = {
   }
   
   function uploadImage() {
+    console.log('Upload image button clicked');
     const fileInput = document.getElementById('imageInput');
-    fileInput.click();
+    if (fileInput) {
+      console.log('File input found, opening file dialog');
+      fileInput.click();
+    } else {
+      console.error('File input not found');
+    }
   }
 
   function handleImageUpload(event) {
+    console.log('File input changed');
     const file = event.target.files[0];
-    if (!file) return;
+    if (!file) {
+      console.log('No file selected');
+      return;
+    }
+    
+    console.log('File selected:', file.name, file.type, file.size);
 
     const reader = new FileReader();
     reader.onload = function(e) {
+      console.log('File read successfully');
       const imageContainer = document.getElementById('imageContainer');
       const uploadedImage = document.getElementById('uploadedImage');
+      
+      if (!imageContainer || !uploadedImage) {
+        console.error('Image container or uploaded image element not found');
+        return;
+      }
       
       uploadedImage.src = e.target.result;
       imageContainer.style.display = 'block';
@@ -378,11 +396,17 @@ const CONVERSIONS = {
     const unitButtons = document.querySelectorAll('.unit-btn');
     
     if (uploadImageBtn) {
+      console.log('Adding click listener to upload button');
       uploadImageBtn.addEventListener('click', uploadImage);
+    } else {
+      console.error('Upload image button not found');
     }
     
     if (imageInput) {
+      console.log('Adding change listener to file input');
       imageInput.addEventListener('change', handleImageUpload);
+    } else {
+      console.error('File input not found');
     }
     
     // Add click listener to uploaded image
