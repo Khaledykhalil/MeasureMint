@@ -124,6 +124,88 @@ const CONVERSIONS = {
     }
   }
 
+  function handleDragOver(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const dropZone = document.getElementById('dropZone');
+    if (dropZone) {
+      dropZone.classList.add('drag-over');
+    }
+  }
+
+  function handleDragLeave(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const dropZone = document.getElementById('dropZone');
+    if (dropZone) {
+      dropZone.classList.remove('drag-over');
+    }
+  }
+
+  function handleDrop(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    const dropZone = document.getElementById('dropZone');
+    if (dropZone) {
+      dropZone.classList.remove('drag-over');
+    }
+    
+    const files = event.dataTransfer.files;
+    if (files.length > 0) {
+      const file = files[0];
+      if (file.type.startsWith('image/')) {
+        console.log('File dropped:', file.name, file.type, file.size);
+        processImageFile(file);
+      } else {
+        alert('Please drop an image file (PNG, JPG, GIF, etc.)');
+      }
+    }
+  }
+
+  function processImageFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      console.log('File read successfully');
+      const imageContainer = document.getElementById('imageContainer');
+      const uploadedImage = document.getElementById('uploadedImage');
+      const dropZone = document.getElementById('dropZone');
+      
+      if (!imageContainer || !uploadedImage) {
+        console.error('Image container or uploaded image element not found');
+        return;
+      }
+      
+      uploadedImage.src = e.target.result;
+      imageContainer.style.display = 'block';
+      
+      // Hide drop zone after successful upload
+      if (dropZone) {
+        dropZone.classList.add('hidden');
+      }
+      
+      // Store the image data
+      state.selectedImage = {
+        src: e.target.result,
+        file: file,
+        element: uploadedImage
+      };
+      
+      // Enable buttons
+      const calibrateBtn = document.getElementById('calibrateBtn');
+      const measureBtn = document.getElementById('measureBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      
+      if (calibrateBtn) calibrateBtn.disabled = false;
+      if (measureBtn) measureBtn.disabled = false;
+      if (clearBtn) clearBtn.disabled = false;
+      
+      updateUI();
+      console.log('Image uploaded successfully via drag & drop');
+    };
+    reader.readAsDataURL(file);
+  }
+
   function handleImageUpload(event) {
     console.log('File input changed');
     const file = event.target.files[0];
@@ -147,6 +229,12 @@ const CONVERSIONS = {
       
       uploadedImage.src = e.target.result;
       imageContainer.style.display = 'block';
+      
+      // Hide drop zone after successful upload
+      const dropZone = document.getElementById('dropZone');
+      if (dropZone) {
+        dropZone.classList.add('hidden');
+      }
       
       // Store the image data
       state.selectedImage = {
@@ -362,6 +450,28 @@ const CONVERSIONS = {
   function clearMeasurements() {
     if (confirm('Are you sure you want to clear all measurements?')) {
       state.measurements = [];
+      state.selectedImage = null;
+      
+      // Show drop zone again
+      const dropZone = document.getElementById('dropZone');
+      const imageContainer = document.getElementById('imageContainer');
+      
+      if (dropZone) {
+        dropZone.classList.remove('hidden');
+      }
+      if (imageContainer) {
+        imageContainer.style.display = 'none';
+      }
+      
+      // Disable buttons
+      const calibrateBtn = document.getElementById('calibrateBtn');
+      const measureBtn = document.getElementById('measureBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      
+      if (calibrateBtn) calibrateBtn.disabled = true;
+      if (measureBtn) measureBtn.disabled = true;
+      if (clearBtn) clearBtn.disabled = true;
+      
       updateUI();
     }
   }
@@ -413,6 +523,17 @@ const CONVERSIONS = {
     const uploadedImage = document.getElementById('uploadedImage');
     if (uploadedImage) {
       uploadedImage.addEventListener('click', handleImageClick);
+    }
+    
+    // Add drag and drop event listeners
+    const dropZone = document.getElementById('dropZone');
+    if (dropZone) {
+      console.log('Adding drag and drop listeners');
+      dropZone.addEventListener('dragover', handleDragOver);
+      dropZone.addEventListener('dragleave', handleDragLeave);
+      dropZone.addEventListener('drop', handleDrop);
+    } else {
+      console.error('Drop zone not found');
     }
     
     if (selectImageBtn) {

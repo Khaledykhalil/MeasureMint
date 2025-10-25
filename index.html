@@ -454,6 +454,60 @@
     .toggle-details:hover {
       text-decoration: underline;
     }
+
+    .drop-zone {
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 40px 20px;
+      margin: 20px 0;
+      text-align: center;
+      background: #f9fafb;
+      transition: all 0.3s ease;
+      cursor: pointer;
+    }
+
+    .drop-zone:hover {
+      border-color: #667eea;
+      background: #f0f4ff;
+    }
+
+    .drop-zone.drag-over {
+      border-color: #667eea;
+      background: #dbeafe;
+      transform: scale(1.02);
+    }
+
+    .drop-zone-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .drop-zone-icon {
+      font-size: 48px;
+      opacity: 0.6;
+    }
+
+    .drop-zone-text {
+      color: #6b7280;
+    }
+
+    .drop-zone-text strong {
+      color: #374151;
+      font-size: 16px;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .drop-zone-text p {
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .drop-zone.hidden {
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -488,6 +542,16 @@
         <button id="clearBtn" class="btn" disabled>
           <span>🗑️</span> Clear
         </button>
+      </div>
+
+      <div id="dropZone" class="drop-zone">
+        <div class="drop-zone-content">
+          <div class="drop-zone-icon">📁</div>
+          <div class="drop-zone-text">
+            <strong>Drag & Drop Image Here</strong>
+            <p>Or click "Upload Image" button above</p>
+          </div>
+        </div>
       </div>
 
       <div class="unit-selector">
