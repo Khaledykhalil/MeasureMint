@@ -115,11 +115,20 @@
         }
         
         log('Miro SDK found, testing connection...');
-        const user = await miro.board.getUserInfo();
+        
+        // Add timeout to prevent hanging
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Connection timeout - this is normal when testing outside Miro')), 3000)
+        );
+        
+        const userPromise = miro.board.getUserInfo();
+        const user = await Promise.race([userPromise, timeoutPromise]);
+        
         log('SUCCESS: Connected to Miro - User: ' + user.name);
       } catch (error) {
         log('ERROR: ' + error.message);
         log('This is expected if not running inside Miro');
+        log('To test properly, you need to run this inside a Miro board');
       }
     }
     
