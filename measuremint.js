@@ -113,6 +113,45 @@ const CONVERSIONS = {
     }
   }
   
+  function uploadImage() {
+    const fileInput = document.getElementById('imageInput');
+    fileInput.click();
+  }
+
+  function handleImageUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const imageContainer = document.getElementById('imageContainer');
+      const uploadedImage = document.getElementById('uploadedImage');
+      
+      uploadedImage.src = e.target.result;
+      imageContainer.style.display = 'block';
+      
+      // Store the image data
+      state.selectedImage = {
+        src: e.target.result,
+        file: file,
+        element: uploadedImage
+      };
+      
+      // Enable buttons
+      const calibrateBtn = document.getElementById('calibrateBtn');
+      const measureBtn = document.getElementById('measureBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      
+      if (calibrateBtn) calibrateBtn.disabled = false;
+      if (measureBtn) measureBtn.disabled = false;
+      if (clearBtn) clearBtn.disabled = false;
+      
+      updateUI();
+      console.log('Image uploaded successfully');
+    };
+    reader.readAsDataURL(file);
+  }
+
   async function selectImage() {
     try {
       // Initialize Miro SDK
@@ -330,11 +369,27 @@ const CONVERSIONS = {
     updateUI();
     
     // Add event listeners
+    const uploadImageBtn = document.getElementById('uploadImageBtn');
     const selectImageBtn = document.getElementById('selectImageBtn');
+    const imageInput = document.getElementById('imageInput');
     const calibrateBtn = document.getElementById('calibrateBtn');
     const measureBtn = document.getElementById('measureBtn');
     const clearBtn = document.getElementById('clearBtn');
     const unitButtons = document.querySelectorAll('.unit-btn');
+    
+    if (uploadImageBtn) {
+      uploadImageBtn.addEventListener('click', uploadImage);
+    }
+    
+    if (imageInput) {
+      imageInput.addEventListener('change', handleImageUpload);
+    }
+    
+    // Add click listener to uploaded image
+    const uploadedImage = document.getElementById('uploadedImage');
+    if (uploadedImage) {
+      uploadedImage.addEventListener('click', handleImageClick);
+    }
     
     if (selectImageBtn) {
       selectImageBtn.addEventListener('click', selectImage);

@@ -473,8 +473,11 @@
       </div>
 
       <div class="toolbar">
-        <button id="selectImageBtn" class="btn">
-          <span>🖼️</span> Select Image
+        <button id="uploadImageBtn" class="btn">
+          <span>📁</span> Upload Image
+        </button>
+        <button id="selectImageBtn" class="btn" style="display: none;">
+          <span>🖼️</span> Select from Miro
         </button>
         <button id="calibrateBtn" class="btn btn-success" disabled>
           <span>⚙️</span> Calibrate
@@ -508,6 +511,17 @@
         <div class="measurement-value" id="measurementValue">0.00</div>
         <div class="measurement-unit" id="measurementUnit">ft</div>
       </div>
+
+      <div id="imageContainer" style="display: none; margin-top: 20px; text-align: center;">
+        <h4>Uploaded Image</h4>
+        <img id="uploadedImage" style="max-width: 100%; max-height: 400px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: crosshair;" />
+        <p style="font-size: 12px; color: #666; margin-top: 8px;">
+          Click on the image to set measurement points
+        </p>
+      </div>
+
+      <!-- Hidden file input -->
+      <input type="file" id="imageInput" accept="image/*" style="display: none;" />
 
       <div id="calibrationModal" class="modal">
         <div class="modal-content">
