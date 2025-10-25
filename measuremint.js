@@ -113,24 +113,55 @@ const CONVERSIONS = {
     }
   }
   
-  function selectImage() {
-    // This would integrate with Miro's image selection API
-    console.log('Select image functionality - integrate with Miro SDK');
-    alert('Image selection will be integrated with Miro SDK');
-    
-    // Simulate image selection for demo
-    state.selectedImage = true;
-    
-    // Enable buttons
-    const calibrateBtn = document.getElementById('calibrateBtn');
-    const measureBtn = document.getElementById('measureBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    
-    if (calibrateBtn) calibrateBtn.disabled = false;
-    if (measureBtn) measureBtn.disabled = false;
-    if (clearBtn) clearBtn.disabled = false;
-    
-    updateUI();
+  async function selectImage() {
+    try {
+      // Initialize Miro SDK
+      await miro.board.ui.openModal({
+        url: 'https://miro.com/app/board/',
+        width: 800,
+        height: 600
+      });
+      
+      // Get selected images from Miro board
+      const images = await miro.board.get({ type: 'image' });
+      
+      if (images.length === 0) {
+        alert('Please add an image to your Miro board first');
+        return;
+      }
+      
+      // For now, select the first image
+      state.selectedImage = images[0];
+      
+      // Enable buttons
+      const calibrateBtn = document.getElementById('calibrateBtn');
+      const measureBtn = document.getElementById('measureBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      
+      if (calibrateBtn) calibrateBtn.disabled = false;
+      if (measureBtn) measureBtn.disabled = false;
+      if (clearBtn) clearBtn.disabled = false;
+      
+      updateUI();
+      
+      console.log('Image selected:', state.selectedImage);
+      
+    } catch (error) {
+      console.error('Error selecting image:', error);
+      alert('Error selecting image. Make sure you\'re running this in a Miro app context.');
+      
+      // Fallback for testing outside Miro
+      state.selectedImage = true;
+      const calibrateBtn = document.getElementById('calibrateBtn');
+      const measureBtn = document.getElementById('measureBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      
+      if (calibrateBtn) calibrateBtn.disabled = false;
+      if (measureBtn) measureBtn.disabled = false;
+      if (clearBtn) clearBtn.disabled = false;
+      
+      updateUI();
+    }
   }
   
   function startCalibration() {
@@ -278,8 +309,24 @@ const CONVERSIONS = {
     }
   }
   
-  function init() {
+  async function init() {
     console.log('MeasureMint initialized');
+    
+    // Initialize Miro SDK
+    try {
+      await miro.board.ui.on('icon:click', async () => {
+        console.log('Miro app opened');
+      });
+      
+      // Check if we're in Miro context
+      if (typeof miro !== 'undefined') {
+        console.log('Running in Miro context');
+        // You can add Miro-specific initialization here
+      }
+    } catch (error) {
+      console.log('Not running in Miro context, using fallback mode');
+    }
+    
     updateUI();
     
     // Add event listeners
