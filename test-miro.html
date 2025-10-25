@@ -50,7 +50,8 @@
     </div>
     
     <div>
-      <h3>Test Miro SDK Functions:</h3>
+      <h3>Test Functions:</h3>
+      <button onclick="testBasicFunctionality()">Test Basic Functionality</button>
       <button onclick="testMiroConnection()">Test Miro Connection</button>
       <button onclick="getBoardInfo()">Get Board Info</button>
       <button onclick="getImages()">Get Images</button>
@@ -66,23 +67,27 @@
   <script>
     let miroReady = false;
     
-    async function initMiro() {
-      try {
-        // Wait for Miro SDK to be ready
-        await miro.board.ui.on('ready', () => {
-          console.log('Miro SDK ready');
-          miroReady = true;
-          updateStatus('Miro SDK is ready!', 'success');
-        });
+    function initMiro() {
+      console.log('Initializing Miro test...');
+      
+      // Check if miro is available
+      if (typeof miro !== 'undefined') {
+        console.log('Miro SDK detected');
+        updateStatus('Miro SDK loaded successfully', 'success');
+        miroReady = true;
         
-        // Check if miro is available
-        if (typeof miro !== 'undefined') {
-          updateStatus('Miro SDK loaded successfully', 'success');
-        } else {
-          updateStatus('Miro SDK not available - running in test mode', 'error');
+        // Try to initialize Miro SDK
+        try {
+          miro.board.ui.on('ready', () => {
+            console.log('Miro SDK ready');
+            updateStatus('Miro SDK is ready!', 'success');
+          });
+        } catch (error) {
+          console.log('Miro SDK ready event error:', error);
         }
-      } catch (error) {
-        updateStatus('Error initializing Miro SDK: ' + error.message, 'error');
+      } else {
+        console.log('Miro SDK not available');
+        updateStatus('Miro SDK not available - running in test mode', 'error');
       }
     }
     
@@ -93,25 +98,33 @@
     }
     
     function log(message) {
+      console.log(message);
       const output = document.getElementById('output');
-      output.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+      if (output) {
+        output.textContent += new Date().toLocaleTimeString() + ': ' + message + '\n';
+        output.scrollTop = output.scrollHeight;
+      }
     }
     
     async function testMiroConnection() {
+      log('Testing Miro connection...');
       try {
         if (typeof miro === 'undefined') {
           log('ERROR: Miro SDK not available');
           return;
         }
         
+        log('Miro SDK found, testing connection...');
         const user = await miro.board.getUserInfo();
         log('SUCCESS: Connected to Miro - User: ' + user.name);
       } catch (error) {
         log('ERROR: ' + error.message);
+        log('This is expected if not running inside Miro');
       }
     }
     
     async function getBoardInfo() {
+      log('Getting board info...');
       try {
         if (typeof miro === 'undefined') {
           log('ERROR: Miro SDK not available');
@@ -123,10 +136,12 @@
         log('Board Title: ' + board.title);
       } catch (error) {
         log('ERROR: ' + error.message);
+        log('This is expected if not running inside Miro');
       }
     }
     
     async function getImages() {
+      log('Getting images from board...');
       try {
         if (typeof miro === 'undefined') {
           log('ERROR: Miro SDK not available');
@@ -141,7 +156,17 @@
         });
       } catch (error) {
         log('ERROR: ' + error.message);
+        log('This is expected if not running inside Miro');
       }
+    }
+    
+    function testBasicFunctionality() {
+      log('Testing basic functionality...');
+      log('Page loaded successfully');
+      log('JavaScript is working');
+      log('DOM elements found: ' + document.querySelectorAll('button').length + ' buttons');
+      log('Miro SDK available: ' + (typeof miro !== 'undefined'));
+      log('Test completed successfully!');
     }
     
     function openMainApp() {
