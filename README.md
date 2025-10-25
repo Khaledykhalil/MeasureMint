@@ -121,19 +121,6 @@ vercel
 
 See full deployment guide in documentation.
 
-## 💰 Pricing Recommendation
-
-**Professional Plan**: $12-15/user/month
-- Unlimited measurements
-- All unit types
-- Measurement history
-- Priority support
-
-**Team Plan**: $49/team/month (up to 10 users)
-- Everything in Professional
-- Shared calibrations
-- Team measurement library
-
 ## 📋 Marketplace Requirements
 
 - [x] Privacy Policy
@@ -166,10 +153,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👤 Author
 
-**YOUR_NAME**
-- GitHub: [@YOUR-USERNAME](https://github.com/YOUR-USERNAME)
-- Email: your.email@example.com
-- Website: https://yourwebsite.com
+**Khaled Khalil**
+- GitHub: [@khaledykhalil](https://github.com/YOUR-USERNAME)
+- Email: khaledykhalil09@gmail.com
 
 ## 🙏 Acknowledgments
 
