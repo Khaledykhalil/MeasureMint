@@ -66,14 +66,33 @@ const CONVERSIONS = {
         text.textContent = 'Calibrated and ready to measure';
       } else if (state.mode === 'calibrate') {
         indicator.className = 'status-indicator warning';
-        text.textContent = 'Click two points to calibrate';
+        text.textContent = 'Click two points on the board to calibrate';
       } else if (state.mode === 'measure') {
         indicator.className = 'status-indicator';
-        text.textContent = 'Click two points to measure';
+        text.textContent = 'Click two points on the board to measure';
+      } else if (state.selectedImage) {
+        indicator.className = 'status-indicator';
+        text.textContent = 'Item selected - ready to calibrate';
       } else {
         indicator.className = 'status-indicator error';
-        text.textContent = 'Please calibrate first';
+        text.textContent = 'Please select an item from the board';
       }
+    }
+    
+    // Update selected item info
+    const selectedItemInfo = document.getElementById('selectedItemInfo');
+    if (selectedItemInfo && state.selectedImage) {
+      const name = document.getElementById('selectedItemName');
+      const type = document.getElementById('selectedItemType');
+      const size = document.getElementById('selectedItemSize');
+      
+      if (name) name.textContent = state.selectedImage.title || 'Untitled';
+      if (type) type.textContent = state.selectedImage.type || 'unknown';
+      if (size) size.textContent = `${state.selectedImage.width}x${state.selectedImage.height}`;
+      
+      selectedItemInfo.style.display = 'block';
+    } else if (selectedItemInfo) {
+      selectedItemInfo.style.display = 'none';
     }
     
     // Update unit system buttons
@@ -260,58 +279,87 @@ const CONVERSIONS = {
 
   async function selectImage() {
     try {
-      // Initialize Miro SDK
-      await miro.board.ui.openModal({
-        url: 'https://miro.com/app/board/',
-        width: 800,
-        height: 600
-      });
-      
-      // Get selected images from Miro board
+      // Get all images and PDFs from Miro board
       const images = await miro.board.get({ type: 'image' });
+      const pdfs = await miro.board.get({ type: 'document' });
       
-      if (images.length === 0) {
-        alert('Please add an image to your Miro board first');
+      const allItems = [...images, ...pdfs];
+      
+      if (allItems.length === 0) {
+        alert('Please add an image or PDF to your Miro board first. You can drag and drop files directly onto the board.');
         return;
       }
       
-      // For now, select the first image
-      state.selectedImage = images[0];
+      // If only one item, select it automatically
+      if (allItems.length === 1) {
+        state.selectedImage = allItems[0];
+        enableMeasurementButtons();
+        updateUI();
+        console.log('Auto-selected item:', state.selectedImage);
+        return;
+      }
       
-      // Enable buttons
-      const calibrateBtn = document.getElementById('calibrateBtn');
-      const measureBtn = document.getElementById('measureBtn');
-      const clearBtn = document.getElementById('clearBtn');
-      
-      if (calibrateBtn) calibrateBtn.disabled = false;
-      if (measureBtn) measureBtn.disabled = false;
-      if (clearBtn) clearBtn.disabled = false;
-      
-      updateUI();
-      
-      console.log('Image selected:', state.selectedImage);
+      // If multiple items, show selection modal
+      await showItemSelectionModal(allItems);
       
     } catch (error) {
       console.error('Error selecting image:', error);
-      alert('Error selecting image. Make sure you\'re running this in a Miro app context.');
+      alert('Error accessing board items. Make sure you\'re running this in a Miro app context.');
       
       // Fallback for testing outside Miro
       state.selectedImage = true;
-      const calibrateBtn = document.getElementById('calibrateBtn');
-      const measureBtn = document.getElementById('measureBtn');
-      const clearBtn = document.getElementById('clearBtn');
-      
-      if (calibrateBtn) calibrateBtn.disabled = false;
-      if (measureBtn) measureBtn.disabled = false;
-      if (clearBtn) clearBtn.disabled = false;
-      
+      enableMeasurementButtons();
       updateUI();
     }
+  }
+
+  async function showItemSelectionModal(items) {
+    // Create a simple selection interface
+    const modalHtml = `
+      <div style="padding: 20px;">
+        <h3>Select Image or PDF to Measure</h3>
+        <div style="max-height: 400px; overflow-y: auto;">
+          ${items.map((item, index) => `
+            <div style="border: 1px solid #ddd; margin: 10px 0; padding: 10px; cursor: pointer; border-radius: 4px;" 
+                 onclick="selectItem(${index})">
+              <strong>${item.title || 'Untitled'}</strong><br>
+              <small>Type: ${item.type} | Size: ${item.width}x${item.height}</small>
+            </div>
+          `).join('')}
+        </div>
+        <button onclick="miro.board.ui.closeModal()" style="margin-top: 10px; padding: 8px 16px;">Cancel</button>
+      </div>
+    `;
+    
+    await miro.board.ui.openModal({
+      url: 'data:text/html;charset=utf-8,' + encodeURIComponent(modalHtml),
+      width: 500,
+      height: 600
+    });
+    
+    // Store items for selection
+    window.selectItem = (index) => {
+      state.selectedImage = items[index];
+      enableMeasurementButtons();
+      updateUI();
+      miro.board.ui.closeModal();
+      console.log('Selected item:', state.selectedImage);
+    };
+  }
+
+  function enableMeasurementButtons() {
+    const calibrateBtn = document.getElementById('calibrateBtn');
+    const measureBtn = document.getElementById('measureBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    
+    if (calibrateBtn) calibrateBtn.disabled = false;
+    if (measureBtn) measureBtn.disabled = false;
+    if (clearBtn) clearBtn.disabled = false;
   }
   
   function startCalibration() {
     if (!state.selectedImage) {
-      alert('Please select an image first');
+      alert('Please select an image or PDF from the board first');
       return;
     }
     
@@ -320,9 +368,26 @@ const CONVERSIONS = {
     state.firstPoint = null;
     updateUI();
     
-    console.log('Calibration mode started - click two points on a known distance');
+    console.log('Calibration mode started - click two points on the board for a known distance');
+    
+    // Show calibration modal immediately for better UX
+    showCalibrationModal();
   }
   
+  function showCalibrationModal() {
+    const modal = document.getElementById('calibrationModal');
+    if (modal) {
+      modal.classList.add('show');
+    }
+  }
+
+  function hideCalibrationModal() {
+    const modal = document.getElementById('calibrationModal');
+    if (modal) {
+      modal.classList.remove('show');
+    }
+  }
+
   function startMeasurement() {
     if (!state.calibration) {
       alert('Please calibrate the scale first');
@@ -334,7 +399,7 @@ const CONVERSIONS = {
     state.firstPoint = null;
     updateUI();
     
-    console.log('Measurement mode started - click two points to measure');
+    console.log('Measurement mode started - click two points on the board to measure');
   }
   
   function handleImageClick(event) {
@@ -368,7 +433,7 @@ const CONVERSIONS = {
   }
   
   function handleCalibrationComplete(pixelDistance) {
-    const actualDistance = parseFloat(document.getElementById('calibrationDistance').value);
+    const actualDistance = parseFloat(document.getElementById('distanceInput').value);
     const unit = document.getElementById('calibrationUnit').value;
     
     if (!actualDistance || actualDistance <= 0) {
@@ -382,6 +447,7 @@ const CONVERSIONS = {
     };
     
     state.mode = 'none';
+    hideCalibrationModal();
     updateUI();
     
     console.log(`Calibration complete: ${pixelDistance}px = ${actualDistance} ${unit}`);
@@ -451,17 +517,7 @@ const CONVERSIONS = {
     if (confirm('Are you sure you want to clear all measurements?')) {
       state.measurements = [];
       state.selectedImage = null;
-      
-      // Show drop zone again
-      const dropZone = document.getElementById('dropZone');
-      const imageContainer = document.getElementById('imageContainer');
-      
-      if (dropZone) {
-        dropZone.classList.remove('hidden');
-      }
-      if (imageContainer) {
-        imageContainer.style.display = 'none';
-      }
+      state.calibration = null;
       
       // Disable buttons
       const calibrateBtn = document.getElementById('calibrateBtn');
@@ -497,47 +553,17 @@ const CONVERSIONS = {
     updateUI();
     
     // Add event listeners
-    const uploadImageBtn = document.getElementById('uploadImageBtn');
     const selectImageBtn = document.getElementById('selectImageBtn');
-    const imageInput = document.getElementById('imageInput');
     const calibrateBtn = document.getElementById('calibrateBtn');
     const measureBtn = document.getElementById('measureBtn');
     const clearBtn = document.getElementById('clearBtn');
     const unitButtons = document.querySelectorAll('.unit-btn');
     
-    if (uploadImageBtn) {
-      console.log('Adding click listener to upload button');
-      uploadImageBtn.addEventListener('click', uploadImage);
-    } else {
-      console.error('Upload image button not found');
-    }
-    
-    if (imageInput) {
-      console.log('Adding change listener to file input');
-      imageInput.addEventListener('change', handleImageUpload);
-    } else {
-      console.error('File input not found');
-    }
-    
-    // Add click listener to uploaded image
-    const uploadedImage = document.getElementById('uploadedImage');
-    if (uploadedImage) {
-      uploadedImage.addEventListener('click', handleImageClick);
-    }
-    
-    // Add drag and drop event listeners
-    const dropZone = document.getElementById('dropZone');
-    if (dropZone) {
-      console.log('Adding drag and drop listeners');
-      dropZone.addEventListener('dragover', handleDragOver);
-      dropZone.addEventListener('dragleave', handleDragLeave);
-      dropZone.addEventListener('drop', handleDrop);
-    } else {
-      console.error('Drop zone not found');
-    }
-    
     if (selectImageBtn) {
+      console.log('Adding click listener to select button');
       selectImageBtn.addEventListener('click', selectImage);
+    } else {
+      console.error('Select image button not found');
     }
     
     if (calibrateBtn) {
@@ -550,6 +576,33 @@ const CONVERSIONS = {
     
     if (clearBtn) {
       clearBtn.addEventListener('click', clearMeasurements);
+    }
+    
+    // Add calibration modal event listeners
+    const setCalibrationBtn = document.getElementById('setCalibrationBtn');
+    const cancelCalibrationBtn = document.getElementById('cancelCalibrationBtn');
+    
+    if (setCalibrationBtn) {
+      setCalibrationBtn.addEventListener('click', () => {
+        const distance = parseFloat(document.getElementById('distanceInput').value);
+        const unit = document.getElementById('calibrationUnit').value;
+        
+        if (distance && distance > 0) {
+          // For now, simulate a pixel distance (this would come from actual board clicks)
+          const simulatedPixelDistance = 100; // This would be calculated from actual clicks
+          handleCalibrationComplete(simulatedPixelDistance);
+        } else {
+          alert('Please enter a valid distance');
+        }
+      });
+    }
+    
+    if (cancelCalibrationBtn) {
+      cancelCalibrationBtn.addEventListener('click', () => {
+        state.mode = 'none';
+        hideCalibrationModal();
+        updateUI();
+      });
     }
     
     // Unit system toggle

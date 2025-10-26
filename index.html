@@ -527,31 +527,23 @@
       </div>
 
       <div class="toolbar">
-        <button id="uploadImageBtn" class="btn">
-          <span>📁</span> Upload Image
-        </button>
-        <button id="selectImageBtn" class="btn" style="display: none;">
-          <span>🖼️</span> Select from Miro
+        <button id="selectImageBtn" class="btn btn-primary">
+          <span>🖼️</span> Select from Board
         </button>
         <button id="calibrateBtn" class="btn btn-success" disabled>
-          <span>⚙️</span> Calibrate
+          <span>⚙️</span> Calibrate Scale
         </button>
         <button id="measureBtn" class="btn btn-primary" disabled>
-          <span>📏</span> Measure
+          <span>📏</span> Measure Distance
         </button>
         <button id="clearBtn" class="btn" disabled>
-          <span>🗑️</span> Clear
+          <span>🗑️</span> Clear All
         </button>
       </div>
 
-      <div id="dropZone" class="drop-zone">
-        <div class="drop-zone-content">
-          <div class="drop-zone-icon">📁</div>
-          <div class="drop-zone-text">
-            <strong>Drag & Drop Image Here</strong>
-            <p>Or click "Upload Image" button above</p>
-          </div>
-        </div>
+      <div id="selectedItemInfo" class="info-panel" style="display: none;">
+        <strong>Selected Item:</strong> <span id="selectedItemName">-</span><br>
+        <small>Type: <span id="selectedItemType">-</span> | Size: <span id="selectedItemSize">-</span></small>
       </div>
 
       <div class="unit-selector">
@@ -576,16 +568,6 @@
         <div class="measurement-unit" id="measurementUnit">ft</div>
       </div>
 
-      <div id="imageContainer" style="display: none; margin-top: 20px; text-align: center;">
-        <h4>Uploaded Image</h4>
-        <img id="uploadedImage" style="max-width: 100%; max-height: 400px; border: 1px solid #e2e8f0; border-radius: 8px; cursor: crosshair;" />
-        <p style="font-size: 12px; color: #666; margin-top: 8px;">
-          Click on the image to set measurement points
-        </p>
-      </div>
-
-      <!-- Hidden file input -->
-      <input type="file" id="imageInput" accept="image/*" style="display: none;" />
 
       <div id="calibrationModal" class="modal">
         <div class="modal-content">
