@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="miro-sdk" id="miro-sdk-meta">
+  <script>
+    // Set Miro Client ID from server header
+    const clientId = document.querySelector('#miro-sdk-meta');
+    clientId.setAttribute('content', document.querySelector('meta[http-equiv="X-Miro-Client-Id"]')?.getAttribute('content') || '');
+  </script>
   <title>MeasureMint - Professional Measurement Tool</title>
   <script src="https://miro.com/app/static/sdk/v2/miro.js"></script>
   <script type="module" src="index.js"></script>
