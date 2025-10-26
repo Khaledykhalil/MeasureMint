@@ -1,5 +1,29 @@
 /**
- * State management for the MeasureMint application
+ * State Management Module
+ * 
+ * This module implements a centralized state management system for the application.
+ * It maintains the application's state and provides methods for state updates
+ * while ensuring data consistency and proper state transitions.
+ * 
+ * Key features:
+ * - Centralized state management
+ * - Independent measurement states with individual calibration data
+ * - Coordinate transformation utilities
+ * - Type-safe state updates
+ * 
+ * The State class provides a clean interface for state management while
+ * encapsulating the complexity of state updates and validation. Each
+ * measurement maintains its own calibration data, allowing for multiple
+ * different scales on the same image.
+ * 
+ * State Structure:
+ * - mode: Current application mode (none, calibrate, measure)
+ * - currentCalibration: Active calibration for new measurements
+ * - measurements: Array of independent measurements with their calibration
+ * - selectedItem: Currently selected Miro board item
+ * - unit/unitSystem: Current measurement units
+ * 
+ * @module state
  */
 export class State {
   constructor() {

@@ -1,4 +1,22 @@
-// Unit conversion utilities
+/**
+ * Utilities Module
+ * 
+ * This module provides core utility functions for measurements and calculations.
+ * It handles all the mathematical operations and unit conversions needed for accurate measurements.
+ * 
+ * Key features:
+ * - Unit conversion between metric and imperial systems
+ * - Distance calculations in both pixel and real-world units
+ * - Formatting utilities for consistent number display
+ * - Mathematical utilities for coordinate calculations
+ * 
+ * The functions in this module are designed to be pure functions,
+ * meaning they don't modify external state and always return the same
+ * output for the same input, making them reliable and testable.
+ * 
+ * @module utils
+ */
+
 import { CONVERSIONS } from './constants.js';
 
 /**

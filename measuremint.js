@@ -1,3 +1,35 @@
+/**
+ * MeasureMint Core Application
+ * 
+ * This is the main application file that coordinates all the different modules
+ * and handles the core measurement functionality. It integrates with the Miro
+ * SDK and manages user interactions.
+ * 
+ * Key features:
+ * - Miro SDK integration and initialization
+ * - Event handling for user interactions
+ * - Coordination between different modules
+ * - UI state management and updates
+ * 
+ * The application is built with a modular architecture where:
+ * - Constants module provides configuration values
+ * - Utils module handles calculations and conversions
+ * - Widgets module manages Miro board elements
+ * - State module maintains application state
+ * 
+ * This modular approach allows for:
+ * - Easier maintenance and updates
+ * - Better code organization
+ * - Improved testing capabilities
+ * - Clear separation of concerns
+ * 
+ * Each measurement is independent and maintains its own calibration data,
+ * allowing users to have multiple measurements with different scales on
+ * the same image or PDF.
+ * 
+ * @module measuremint
+ */
+
 import { CONVERSIONS } from './src/constants.js';
 import { convertUnits, getAllConversions, formatNumber, calculateDistance } from './src/utils.js';
 import { createPointMarker, createLine, createLabel, createMeasurementVisuals, createCalibrationVisuals } from './src/widgets.js';

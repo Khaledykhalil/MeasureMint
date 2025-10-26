@@ -1,3 +1,22 @@
+/**
+ * Widgets Module
+ * 
+ * This module handles all interactions with the Miro board widgets.
+ * It provides a clean interface for creating and managing visual elements
+ * on the Miro board, ensuring consistent styling and behavior.
+ * 
+ * Key features:
+ * - Creation of measurement points and lines
+ * - Management of calibration markers
+ * - Text label generation for measurements
+ * - Consistent styling across all visual elements
+ * 
+ * The module abstracts away the complexity of working directly with the Miro SDK,
+ * providing simple, task-focused functions for common operations.
+ * 
+ * @module widgets
+ */
+
 import { STYLES } from './constants.js';
 
 /**

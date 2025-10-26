@@ -1,4 +1,20 @@
-// Constants for unit conversions and configurations
+/**
+ * Constants Module
+ * 
+ * This module contains all the constant values and configurations used throughout the application.
+ * Centralizing these values makes it easier to maintain and modify the application's behavior.
+ * 
+ * Key components:
+ * - Unit conversion factors for different measurement systems
+ * - Predefined unit groups (metric and imperial)
+ * - Widget style configurations for visual consistency
+ * 
+ * @module constants
+ */
+
+// Unit conversion factors relative to meters
+// These values are used to convert between different units of measurement
+// Example: 1 foot = 0.3048 meters, so to convert feet to meters, multiply by 0.3048
 export const CONVERSIONS = {
   toMeters: {
     'm': 1,
