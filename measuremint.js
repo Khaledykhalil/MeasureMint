@@ -1,630 +1,328 @@
-// Unit conversion constants
-const CONVERSIONS = {
-    toMeters: {
-      'm': 1,
-      'cm': 0.01,
-      'mm': 0.001,
-      'km': 1000,
-      'ft': 0.3048,
-      'in': 0.0254,
-      'yd': 0.9144,
-      'mi': 1609.34
-    },
-    imperial: [
-      { name: 'Feet', abbr: 'ft', full: 'feet' },
-      { name: 'Inches', abbr: 'in', full: 'inches' },
-      { name: 'Yards', abbr: 'yd', full: 'yards' },
-      { name: 'Miles', abbr: 'mi', full: 'miles' }
-    ],
-    metric: [
-      { name: 'Meters', abbr: 'm', full: 'meters' },
-      { name: 'Centimeters', abbr: 'cm', full: 'centimeters' },
-      { name: 'Millimeters', abbr: 'mm', full: 'millimeters' },
-      { name: 'Kilometers', abbr: 'km', full: 'kilometers' }
-    ]
-  };
-  
-  let state = {
-    mode: 'none',
-    calibration: null,
-    measurements: [],
-    selectedImage: null,
-    unit: 'ft',
-    unitSystem: 'imperial',
-    clickCount: 0,
-    firstPoint: null,
-    tempCalibrationDistance: null,
-    calibrationUnit: 'ft'
-  };
-  
-  function convertUnits(value, fromUnit, toUnit) {
-    const meters = value * CONVERSIONS.toMeters[fromUnit];
-    return meters / CONVERSIONS.toMeters[toUnit];
+import { CONVERSIONS } from './src/constants.js';
+import { convertUnits, getAllConversions, formatNumber, calculateDistance } from './src/utils.js';
+import { createPointMarker, createLine, createLabel, createMeasurementVisuals, createCalibrationVisuals } from './src/widgets.js';
+import { State } from './src/state.js';  // Initialize application state
+  const state = new State();
+
+// Miro SDK initialization
+async function initMiroSDK() {
+  try {
+    await miro.board.ui.on('selection:update', handleSelection);
+    state.miroBoard = await miro.board.getInfo();
+    updateUI();
+  } catch (error) {
+    console.error('Failed to initialize Miro SDK:', error);
+    updateStatus('error', 'Failed to initialize Miro SDK');
   }
-  
-  function getAllConversions(value, fromUnit) {
-    const conversions = {};
-    for (const unit in CONVERSIONS.toMeters) {
-      conversions[unit] = convertUnits(value, fromUnit, unit);
-    }
-    return conversions;
-  }
-  
-  function formatNumber(num, decimals = 2) {
-    return parseFloat(num.toFixed(decimals));
-  }
-  
-  function updateUI() {
-    // Update status bar
-    const statusBar = document.getElementById('status');
-    if (statusBar) {
-      const indicator = statusBar.querySelector('.status-indicator');
-      const text = statusBar.querySelector('span');
-      
-      if (state.calibration) {
-        indicator.className = 'status-indicator';
-        text.textContent = 'Calibrated and ready to measure';
-      } else if (state.mode === 'calibrate') {
-        indicator.className = 'status-indicator warning';
-        text.textContent = 'Click two points on the board to calibrate';
-      } else if (state.mode === 'measure') {
-        indicator.className = 'status-indicator';
-        text.textContent = 'Click two points on the board to measure';
-      } else if (state.selectedImage) {
-        indicator.className = 'status-indicator';
-        text.textContent = 'Item selected - ready to calibrate';
-      } else {
-        indicator.className = 'status-indicator error';
-        text.textContent = 'Please select an item from the board';
-      }
-    }
-    
-    // Update selected item info
-    const selectedItemInfo = document.getElementById('selectedItemInfo');
-    if (selectedItemInfo && state.selectedImage) {
-      const name = document.getElementById('selectedItemName');
-      const type = document.getElementById('selectedItemType');
-      const size = document.getElementById('selectedItemSize');
-      
-      if (name) name.textContent = state.selectedImage.title || 'Untitled';
-      if (type) type.textContent = state.selectedImage.type || 'unknown';
-      if (size) size.textContent = `${state.selectedImage.width}x${state.selectedImage.height}`;
-      
-      selectedItemInfo.style.display = 'block';
-    } else if (selectedItemInfo) {
-      selectedItemInfo.style.display = 'none';
-    }
-    
-    // Update unit system buttons
-    const unitButtons = document.querySelectorAll('.unit-btn');
-    unitButtons.forEach(btn => {
-      const system = btn.dataset.system;
-      btn.classList.toggle('active', system === state.unitSystem);
-    });
-    
-    // Update measurement display
-    const measurementDisplay = document.getElementById('measurementDisplay');
-    if (measurementDisplay && state.measurements.length > 0) {
-      const latest = state.measurements[state.measurements.length - 1];
-      const measurementValue = document.getElementById('measurementValue');
-      const measurementUnit = document.getElementById('measurementUnit');
-      
-      if (measurementValue) measurementValue.textContent = formatNumber(latest.distance);
-      if (measurementUnit) measurementUnit.textContent = latest.unit;
-      
-      measurementDisplay.style.display = 'block';
-    }
-    
-    // Update mode-specific UI
-    updateModeUI();
-  }
-  
-  function updateModeUI() {
-    // Show/hide mode-specific instructions
-    const calibrateInfo = document.getElementById('calibrateInfo');
-    const measureInfo = document.getElementById('measureInfo');
-    
-    if (calibrateInfo) {
-      calibrateInfo.style.display = state.mode === 'calibrate' ? 'block' : 'none';
-    }
-    if (measureInfo) {
-      measureInfo.style.display = state.mode === 'measure' ? 'block' : 'none';
-    }
-  }
-  
-  function uploadImage() {
-    console.log('Upload image button clicked');
-    const fileInput = document.getElementById('imageInput');
-    if (fileInput) {
-      console.log('File input found, opening file dialog');
-      fileInput.click();
+}
+
+// Handle selection changes on the Miro board
+async function handleSelection() {
+  const selection = await miro.board.getSelection();
+  if (selection.length === 1) {
+    const item = selection[0];
+    if (item.type === 'image' || (item.type === 'pdf' && item.contentUrl)) {
+      state.selectedItem = item;
+      updateUI();
+      updateStatus('success', `Selected ${item.type}: ${item.title || 'Untitled'}`);
     } else {
-      console.error('File input not found');
-    }
-  }
-
-  function handleDragOver(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const dropZone = document.getElementById('dropZone');
-    if (dropZone) {
-      dropZone.classList.add('drag-over');
-    }
-  }
-
-  function handleDragLeave(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    const dropZone = document.getElementById('dropZone');
-    if (dropZone) {
-      dropZone.classList.remove('drag-over');
-    }
-  }
-
-  function handleDrop(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    
-    const dropZone = document.getElementById('dropZone');
-    if (dropZone) {
-      dropZone.classList.remove('drag-over');
-    }
-    
-    const files = event.dataTransfer.files;
-    if (files.length > 0) {
-      const file = files[0];
-      if (file.type.startsWith('image/')) {
-        console.log('File dropped:', file.name, file.type, file.size);
-        processImageFile(file);
-      } else {
-        alert('Please drop an image file (PNG, JPG, GIF, etc.)');
-      }
-    }
-  }
-
-  function processImageFile(file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      console.log('File read successfully');
-      const imageContainer = document.getElementById('imageContainer');
-      const uploadedImage = document.getElementById('uploadedImage');
-      const dropZone = document.getElementById('dropZone');
-      
-      if (!imageContainer || !uploadedImage) {
-        console.error('Image container or uploaded image element not found');
-        return;
-      }
-      
-      uploadedImage.src = e.target.result;
-      imageContainer.style.display = 'block';
-      
-      // Hide drop zone after successful upload
-      if (dropZone) {
-        dropZone.classList.add('hidden');
-      }
-      
-      // Store the image data
-      state.selectedImage = {
-        src: e.target.result,
-        file: file,
-        element: uploadedImage
-      };
-      
-      // Enable buttons
-      const calibrateBtn = document.getElementById('calibrateBtn');
-      const measureBtn = document.getElementById('measureBtn');
-      const clearBtn = document.getElementById('clearBtn');
-      
-      if (calibrateBtn) calibrateBtn.disabled = false;
-      if (measureBtn) measureBtn.disabled = false;
-      if (clearBtn) clearBtn.disabled = false;
-      
+      state.selectedItem = null;
       updateUI();
-      console.log('Image uploaded successfully via drag & drop');
-    };
-    reader.readAsDataURL(file);
-  }
-
-  function handleImageUpload(event) {
-    console.log('File input changed');
-    const file = event.target.files[0];
-    if (!file) {
-      console.log('No file selected');
-      return;
+      updateStatus('warning', 'Please select an image or PDF from the board');
     }
-    
-    console.log('File selected:', file.name, file.type, file.size);
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      console.log('File read successfully');
-      const imageContainer = document.getElementById('imageContainer');
-      const uploadedImage = document.getElementById('uploadedImage');
-      
-      if (!imageContainer || !uploadedImage) {
-        console.error('Image container or uploaded image element not found');
-        return;
-      }
-      
-      uploadedImage.src = e.target.result;
-      imageContainer.style.display = 'block';
-      
-      // Hide drop zone after successful upload
-      const dropZone = document.getElementById('dropZone');
-      if (dropZone) {
-        dropZone.classList.add('hidden');
-      }
-      
-      // Store the image data
-      state.selectedImage = {
-        src: e.target.result,
-        file: file,
-        element: uploadedImage
-      };
-      
-      // Enable buttons
-      const calibrateBtn = document.getElementById('calibrateBtn');
-      const measureBtn = document.getElementById('measureBtn');
-      const clearBtn = document.getElementById('clearBtn');
-      
-      if (calibrateBtn) calibrateBtn.disabled = false;
-      if (measureBtn) measureBtn.disabled = false;
-      if (clearBtn) clearBtn.disabled = false;
-      
-      updateUI();
-      console.log('Image uploaded successfully');
-    };
-    reader.readAsDataURL(file);
-  }
-
-  async function selectImage() {
-    try {
-      // Get all images and PDFs from Miro board
-      const images = await miro.board.get({ type: 'image' });
-      const pdfs = await miro.board.get({ type: 'document' });
-      
-      const allItems = [...images, ...pdfs];
-      
-      if (allItems.length === 0) {
-        alert('Please add an image or PDF to your Miro board first. You can drag and drop files directly onto the board.');
-        return;
-      }
-      
-      // If only one item, select it automatically
-      if (allItems.length === 1) {
-        state.selectedImage = allItems[0];
-        enableMeasurementButtons();
-        updateUI();
-        console.log('Auto-selected item:', state.selectedImage);
-        return;
-      }
-      
-      // If multiple items, show selection modal
-      await showItemSelectionModal(allItems);
-      
-    } catch (error) {
-      console.error('Error selecting image:', error);
-      alert('Error accessing board items. Make sure you\'re running this in a Miro app context.');
-      
-      // Fallback for testing outside Miro
-      state.selectedImage = true;
-      enableMeasurementButtons();
-      updateUI();
-    }
-  }
-
-  async function showItemSelectionModal(items) {
-    // Create a simple selection interface
-    const modalHtml = `
-      <div style="padding: 20px;">
-        <h3>Select Image or PDF to Measure</h3>
-        <div style="max-height: 400px; overflow-y: auto;">
-          ${items.map((item, index) => `
-            <div style="border: 1px solid #ddd; margin: 10px 0; padding: 10px; cursor: pointer; border-radius: 4px;" 
-                 onclick="selectItem(${index})">
-              <strong>${item.title || 'Untitled'}</strong><br>
-              <small>Type: ${item.type} | Size: ${item.width}x${item.height}</small>
-            </div>
-          `).join('')}
-        </div>
-        <button onclick="miro.board.ui.closeModal()" style="margin-top: 10px; padding: 8px 16px;">Cancel</button>
-      </div>
-    `;
-    
-    await miro.board.ui.openModal({
-      url: 'data:text/html;charset=utf-8,' + encodeURIComponent(modalHtml),
-      width: 500,
-      height: 600
-    });
-    
-    // Store items for selection
-    window.selectItem = (index) => {
-      state.selectedImage = items[index];
-      enableMeasurementButtons();
-      updateUI();
-      miro.board.ui.closeModal();
-      console.log('Selected item:', state.selectedImage);
-    };
-  }
-
-  function enableMeasurementButtons() {
-    const calibrateBtn = document.getElementById('calibrateBtn');
-    const measureBtn = document.getElementById('measureBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    
-    if (calibrateBtn) calibrateBtn.disabled = false;
-    if (measureBtn) measureBtn.disabled = false;
-    if (clearBtn) clearBtn.disabled = false;
-  }
-  
-  function startCalibration() {
-    if (!state.selectedImage) {
-      alert('Please select an image or PDF from the board first');
-      return;
-    }
-    
-    state.mode = 'calibrate';
-    state.clickCount = 0;
-    state.firstPoint = null;
+  } else {
+    state.selectedItem = null;
     updateUI();
-    
-    console.log('Calibration mode started - click two points on the board for a known distance');
-    
-    // Show calibration modal immediately for better UX
-    showCalibrationModal();
+    updateStatus('info', 'Please select a single image or PDF from the board');
   }
-  
-  function showCalibrationModal() {
-    const modal = document.getElementById('calibrationModal');
-    if (modal) {
-      modal.classList.add('show');
-    }
-  }
+}
 
-  function hideCalibrationModal() {
-    const modal = document.getElementById('calibrationModal');
-    if (modal) {
-      modal.classList.remove('show');
-    }
-  }
-
-  function startMeasurement() {
-    if (!state.calibration) {
-      alert('Please calibrate the scale first');
-      return;
-    }
-    
-    state.mode = 'measure';
-    state.clickCount = 0;
-    state.firstPoint = null;
-    updateUI();
-    
-    console.log('Measurement mode started - click two points on the board to measure');
-  }
+// Get coordinates relative to the selected item
+function getRelativeCoordinates(x, y) {
+  if (!state.selectedItem) return null;
   
-  function handleImageClick(event) {
-    if (state.mode === 'none') return;
-    
-    const rect = event.target.getBoundingClientRect();
-    const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
-    
+  const item = state.selectedItem;
+  const itemX = item.x - item.width / 2;
+  const itemY = item.y - item.height / 2;
+  
+  return {
+    x: x - itemX,
+    y: y - itemY
+  };
+}
+
+// Convert Miro coordinates to image/PDF coordinates
+function convertToItemScale(point) {
+  if (!state.selectedItem) return null;
+  
+  const relativePoint = getRelativeCoordinates(point.x, point.y);
+  if (!relativePoint) return null;
+  
+  return {
+    x: (relativePoint.x / state.selectedItem.width),
+    y: (relativePoint.y / state.selectedItem.height)
+  };
+}
+
+// Convert units between different measurement systems
+function convertUnits(value, fromUnit, toUnit) {
+  const meters = value * CONVERSIONS.toMeters[fromUnit];
+  return meters / CONVERSIONS.toMeters[toUnit];
+}
+
+function getAllConversions(value, fromUnit) {
+  const conversions = {};
+  for (const unit in CONVERSIONS.toMeters) {
+    conversions[unit] = convertUnits(value, fromUnit, unit);
+  }
+  return conversions;
+}
+
+function formatNumber(num, decimals = 2) {
+  return parseFloat(num.toFixed(decimals));
+}
+
+// Handle clicks on the board for measurements
+async function handleBoardClick(e) {
+  if (!state.selectedItem) return;
+  
+  const clickedPoint = { x: e.x, y: e.y };
+  const scaledPoint = convertToItemScale(clickedPoint);
+  
+  if (!scaledPoint) return;
+  
+  if (state.mode === 'calibrate') {
+    handleCalibrationClick(clickedPoint, scaledPoint);
+  } else if (state.mode === 'measure') {
+    handleMeasurementClick(clickedPoint, scaledPoint);
+  }
+}
+
+// Handle calibration clicks
+async function handleCalibrationClick(clickedPoint, scaledPoint) {
+  if (state.clickCount === 0) {
+    state.firstPoint = { raw: clickedPoint, scaled: scaledPoint };
     state.clickCount++;
     
-    if (state.clickCount === 1) {
-      state.firstPoint = { x, y };
-      console.log(`First point: (${x}, ${y})`);
-    } else if (state.clickCount === 2) {
-      const secondPoint = { x, y };
-      const distance = Math.sqrt(
-        Math.pow(secondPoint.x - state.firstPoint.x, 2) + 
-        Math.pow(secondPoint.y - state.firstPoint.y, 2)
-      );
-      
-      if (state.mode === 'calibrate') {
-        handleCalibrationComplete(distance);
-      } else if (state.mode === 'measure') {
-        handleMeasurementComplete(distance);
-      }
-      
-      state.clickCount = 0;
-      state.firstPoint = null;
-    }
-  }
-  
-  function handleCalibrationComplete(pixelDistance) {
-    const actualDistance = parseFloat(document.getElementById('distanceInput').value);
-    const unit = document.getElementById('calibrationUnit').value;
-    
-    if (!actualDistance || actualDistance <= 0) {
-      alert('Please enter a valid distance');
-      return;
-    }
-    
-    state.calibration = {
-      pixelsPerUnit: pixelDistance / actualDistance,
-      unit: unit
-    };
-    
-    state.mode = 'none';
-    hideCalibrationModal();
-    updateUI();
-    
-    console.log(`Calibration complete: ${pixelDistance}px = ${actualDistance} ${unit}`);
-    alert(`Calibration complete! ${pixelDistance}px = ${actualDistance} ${unit}`);
-  }
-  
-  function handleMeasurementComplete(pixelDistance) {
-    if (!state.calibration) return;
-    
-    const actualDistance = pixelDistance / state.calibration.pixelsPerUnit;
-    const conversions = getAllConversions(actualDistance, state.calibration.unit);
-    
-    const measurement = {
-      id: Date.now(),
-      distance: actualDistance,
-      unit: state.calibration.unit,
-      conversions: conversions,
-      timestamp: new Date()
-    };
-    
-    state.measurements.push(measurement);
-    state.mode = 'none';
-    updateUI();
-    
-    console.log('Measurement:', measurement);
-    alert(`Distance: ${formatNumber(actualDistance)} ${state.calibration.unit}`);
-  }
-  
-  function toggleUnitSystem() {
-    state.unitSystem = state.unitSystem === 'imperial' ? 'metric' : 'imperial';
-    
-    // Set default unit for the new system
-    if (state.unitSystem === 'imperial') {
-      state.unit = 'ft';
-    } else {
-      state.unit = 'm';
-    }
-    
-    updateUI();
-  }
-  
-  function changeUnit(newUnit) {
-    state.unit = newUnit;
-    updateUI();
-  }
-  
-  function showConversions() {
-    if (state.measurements.length === 0) {
-      alert('No measurements to show');
-      return;
-    }
-    
-    const latest = state.measurements[state.measurements.length - 1];
-    const conversions = latest.conversions;
-    
-    let conversionText = `Measurement: ${formatNumber(latest.distance)} ${latest.unit}\n\n`;
-    conversionText += 'All unit conversions:\n';
-    
-    for (const [unit, value] of Object.entries(conversions)) {
-      conversionText += `${unit}: ${formatNumber(value)}\n`;
-    }
-    
-    alert(conversionText);
-  }
-  
-  function clearMeasurements() {
-    if (confirm('Are you sure you want to clear all measurements?')) {
-      state.measurements = [];
-      state.selectedImage = null;
-      state.calibration = null;
-      
-      // Disable buttons
-      const calibrateBtn = document.getElementById('calibrateBtn');
-      const measureBtn = document.getElementById('measureBtn');
-      const clearBtn = document.getElementById('clearBtn');
-      
-      if (calibrateBtn) calibrateBtn.disabled = true;
-      if (measureBtn) measureBtn.disabled = true;
-      if (clearBtn) clearBtn.disabled = true;
-      
-      updateUI();
-    }
-  }
-  
-  async function init() {
-    console.log('MeasureMint initialized');
-    
-    // Initialize Miro SDK
-    try {
-      await miro.board.ui.on('icon:click', async () => {
-        console.log('Miro app opened');
-      });
-      
-      // Check if we're in Miro context
-      if (typeof miro !== 'undefined') {
-        console.log('Running in Miro context');
-        // You can add Miro-specific initialization here
-      }
-    } catch (error) {
-      console.log('Not running in Miro context, using fallback mode');
-    }
-    
-    updateUI();
-    
-    // Add event listeners
-    const selectImageBtn = document.getElementById('selectImageBtn');
-    const calibrateBtn = document.getElementById('calibrateBtn');
-    const measureBtn = document.getElementById('measureBtn');
-    const clearBtn = document.getElementById('clearBtn');
-    const unitButtons = document.querySelectorAll('.unit-btn');
-    
-    if (selectImageBtn) {
-      console.log('Adding click listener to select button');
-      selectImageBtn.addEventListener('click', selectImage);
-    } else {
-      console.error('Select image button not found');
-    }
-    
-    if (calibrateBtn) {
-      calibrateBtn.addEventListener('click', startCalibration);
-    }
-    
-    if (measureBtn) {
-      measureBtn.addEventListener('click', startMeasurement);
-    }
-    
-    if (clearBtn) {
-      clearBtn.addEventListener('click', clearMeasurements);
-    }
-    
-    // Add calibration modal event listeners
-    const setCalibrationBtn = document.getElementById('setCalibrationBtn');
-    const cancelCalibrationBtn = document.getElementById('cancelCalibrationBtn');
-    
-    if (setCalibrationBtn) {
-      setCalibrationBtn.addEventListener('click', () => {
-        const distance = parseFloat(document.getElementById('distanceInput').value);
-        const unit = document.getElementById('calibrationUnit').value;
-        
-        if (distance && distance > 0) {
-          // For now, simulate a pixel distance (this would come from actual board clicks)
-          const simulatedPixelDistance = 100; // This would be calculated from actual clicks
-          handleCalibrationComplete(simulatedPixelDistance);
-        } else {
-          alert('Please enter a valid distance');
-        }
-      });
-    }
-    
-    if (cancelCalibrationBtn) {
-      cancelCalibrationBtn.addEventListener('click', () => {
-        state.mode = 'none';
-        hideCalibrationModal();
-        updateUI();
-      });
-    }
-    
-    // Unit system toggle
-    unitButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        const system = btn.dataset.system;
-        if (system !== state.unitSystem) {
-          toggleUnitSystem();
-        }
-      });
+    // Draw temporary point
+    await miro.board.widgets.create({
+      type: 'sticker',
+      x: clickedPoint.x,
+      y: clickedPoint.y,
+      style: {
+        stickerBackgroundColor: '#2d9bf0',
+        fontSize: 14
+      },
+      text: '1'
     });
     
-    // Enable buttons when image is selected
-    if (state.selectedImage) {
-      calibrateBtn.disabled = false;
-      measureBtn.disabled = false;
+    updateStatus('info', 'Click second point for calibration');
+  } else {
+    const pixelDistance = Math.sqrt(
+      Math.pow(clickedPoint.x - state.firstPoint.raw.x, 2) +
+      Math.pow(clickedPoint.y - state.firstPoint.raw.y, 2)
+    );
+    
+    // Show calibration dialog
+    const calibrationValue = await showCalibrationDialog();
+    if (calibrationValue) {
+      state.currentCalibration = {
+        point1: state.firstPoint.scaled,
+        point2: scaledPoint,
+        pixelDistance: pixelDistance,
+        distance: calibrationValue,
+        unit: state.calibrationUnit
+      };
+      
+      // Draw calibration line
+      await miro.board.widgets.create({
+        type: 'line',
+        startPosition: { x: state.firstPoint.raw.x, y: state.firstPoint.raw.y },
+        endPosition: { x: clickedPoint.x, y: clickedPoint.y },
+        style: {
+          lineColor: '#2d9bf0',
+          lineThickness: 2
+        }
+      });
+      
+      state.mode = 'measure';
+      state.clickCount = 0;
+      state.firstPoint = null;
+      updateUI();
+      updateStatus('success', 'Calibration complete - ready to measure');
+    }
+  }
+}
+
+// Handle measurement clicks
+async function handleMeasurementClick(clickedPoint, scaledPoint) {
+  if (!state.currentCalibration) {
+    updateStatus('error', 'Please calibrate before measuring');
+    return;
+  }
+
+  if (state.clickCount === 0) {
+    state.firstPoint = { raw: clickedPoint, scaled: scaledPoint };
+    state.clickCount++;
+    
+    // Draw temporary point
+    await miro.board.widgets.create({
+      type: 'sticker',
+      x: clickedPoint.x,
+      y: clickedPoint.y,
+      style: {
+        stickerBackgroundColor: '#00ff00',
+        fontSize: 14
+      },
+      text: '1'
+    });
+    
+    updateStatus('info', 'Click second point to complete measurement');
+  } else {
+    // Calculate distance using current calibration
+    const dx = scaledPoint.x - state.firstPoint.scaled.x;
+    const dy = scaledPoint.y - state.firstPoint.scaled.y;
+    const pixelDistance = Math.sqrt(dx * dx + dy * dy);
+    const distance = (pixelDistance * state.currentCalibration.distance) / state.currentCalibration.pixelDistance;
+
+    if (distance !== null) {
+      const measurement = {
+        point1: state.firstPoint.scaled,
+        point2: scaledPoint,
+        distance: distance,
+        unit: state.unit,
+        // Store the calibration data with the measurement
+        calibration: { ...state.currentCalibration }
+      };
+      
+      state.measurements.push(measurement);
+      
+      // Draw measurement line and label
+      const displayDistance = formatNumber(distance);
+      
+      await miro.board.widgets.create([
+        {
+          type: 'line',
+          startPosition: { x: state.firstPoint.raw.x, y: state.firstPoint.raw.y },
+          endPosition: { x: clickedPoint.x, y: clickedPoint.y },
+          style: {
+            lineColor: '#00ff00',
+            lineThickness: 2
+          }
+        },
+        {
+          type: 'text',
+          x: (state.firstPoint.raw.x + clickedPoint.x) / 2,
+          y: (state.firstPoint.raw.y + clickedPoint.y) / 2,
+          text: `${displayDistance} ${state.unit}`,
+          metadata: { 
+            measurementId: state.measurements.length - 1 
+          },
+          style: {
+            textAlign: 'center',
+            fontSize: 14
+          }
+        }
+      ]);
+    }
+    
+    state.clickCount = 0;
+    state.firstPoint = null;
+    updateUI();
+    updateStatus('success', 'Measurement complete');
+  }
+}
+
+function updateStatus(type, message) {
+  const statusBar = document.getElementById('status');
+  if (statusBar) {
+    statusBar.className = `status ${type}`;
+    statusBar.textContent = message;
+  }
+}
+
+// UI updates
+function updateUI() {
+  const statusBar = document.getElementById('status');
+  if (statusBar) {
+    if (state.mode === 'measure' || state.mode === 'calibrate') {
+      // Enable board click handling
+      miro.board.ui.on('click', handleBoardClick);
+    } else {
+      // Disable board click handling
+      miro.board.ui.off('click');
+    }
+    
+    const indicator = statusBar.querySelector('.status-indicator');
+    const text = statusBar.querySelector('span');
+    
+    if (state.currentCalibration) {
+      indicator.className = 'status-indicator';
+      text.textContent = 'Ready to measure';
+    } else if (state.mode === 'calibrate') {
+      indicator.className = 'status-indicator warning';
+      text.textContent = 'Click two points on the board to calibrate';
+    } else if (state.mode === 'measure') {
+      indicator.className = 'status-indicator';
+      text.textContent = 'Click two points on the board to measure';
+    } else if (state.selectedItem) {
+      indicator.className = 'status-indicator';
+      text.textContent = 'Item selected - ready to calibrate';
+    } else {
+      indicator.className = 'status-indicator error';
+      text.textContent = 'Please select an image or PDF from the board';
     }
   }
   
-  // Initialize when DOM is ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  // Update selected item info
+  const selectedItemInfo = document.getElementById('selectedItemInfo');
+  if (selectedItemInfo && state.selectedItem) {
+    const name = document.getElementById('selectedItemName');
+    const type = document.getElementById('selectedItemType');
+    const size = document.getElementById('selectedItemSize');
+    
+    if (name) name.textContent = state.selectedItem.title || 'Untitled';
+    if (type) type.textContent = state.selectedItem.type || 'unknown';
+    if (size) size.textContent = `${state.selectedItem.width}x${state.selectedItem.height}`;
+    
+    selectedItemInfo.style.display = 'block';
+  } else if (selectedItemInfo) {
+    selectedItemInfo.style.display = 'none';
   }
+  
+  // Update unit system buttons
+  const unitButtons = document.querySelectorAll('.unit-btn');
+  unitButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.unit === state.unitSystem);
+  });
+  
+  // Update mode buttons
+  const modeButtons = document.querySelectorAll('.mode-btn');
+  modeButtons.forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.mode === state.mode);
+    btn.disabled = !state.selectedItem;
+  });
+}
+
+// Initialize
+window.addEventListener('load', initMiroSDK);
+
+// Export functions for use in HTML
+window.setMode = function(mode) {
+  state.mode = mode;
+  state.clickCount = 0;
+  state.firstPoint = null;
+  updateUI();
+};
+
+window.setUnitSystem = function(unitSystem) {
+  state.unitSystem = unitSystem;
+  state.unit = CONVERSIONS[unitSystem][0].abbr;
+  state.calibrationUnit = state.unit;
+  updateUI();
+};
+
+window.setUnit = function(unit) {
+  state.unit = unit;
+  updateUI();
+};
