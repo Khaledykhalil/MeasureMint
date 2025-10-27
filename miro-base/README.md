@@ -21,27 +21,31 @@ MIRO_CLIENT_SECRET="your_client_secret"
 MIRO_REDIRECT_URL="http://localhost:3000/api/redirect"
 ```
 
-3. Start the dev server on port 3000
+3. Start the dev server (port 3000)
 
 ```sh
-npm start
+npm run dev
 ```
 
-4. Expose localhost with ngrok in a separate terminal
+Or run Next + ngrok together (requires ngrok installed):
 
 ```sh
-ngrok http 3000
+npm run dev:all
 ```
 
-5. Update the app manifest in the Miro developer console
+4. Update the app manifest in the Miro developer console
 
-- Use `miro-base/app-manifest.yaml`
-- Update these fields to match your ngrok URL:
-  - `sdkUri: https://<your-ngrok-domain>/`
-  - `redirectUris: ["https://<your-ngrok-domain>/api/redirect"]`
-- Save and install the app to your team
+- Option A: Manually update URLs in `miro-base/app-manifest.yaml` to your ngrok domain and paste into the console.
+- Option B: Use the helper to update manifest automatically:
 
-6. Open a Miro board and open MeasureMint from the Apps sidebar.
+```sh
+# once ngrok is running, copy its HTTPS URL
+npm run manifest:update -- https://<your-ngrok-domain>
+```
+
+Then paste `miro-base/app-manifest.yaml` into the Miro console and install to your team.
+
+5. Open a Miro board and open MeasureMint from the Apps sidebar.
 
 ## Notes
 

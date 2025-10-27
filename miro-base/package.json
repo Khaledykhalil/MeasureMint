@@ -4,8 +4,12 @@
   "license": "MIT",
   "scripts": {
     "build": "next build",
-    "start": "next dev",
-    "lint": "next lint"
+    "start": "next dev -p 3000",
+    "lint": "next lint",
+    "dev": "next dev -p 3000",
+    "dev:ngrok": "ngrok http 3000",
+    "dev:all": "concurrently -k \"npm:dev\" \"npm:dev:ngrok\"",
+    "manifest:update": "node scripts/update-manifest.js"
   },
   "dependencies": {
     "next": "14.0.1",
@@ -16,5 +20,8 @@
     "dotenv": "^16.0.3",
     "cookie": "^0.5.0"
   },
-  "devDependencies": {}
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "js-yaml": "^4.1.0"
+  }
 }
