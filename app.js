@@ -1,3 +1,8 @@
+/**
+ * MeasureMint Panel Functionality
+ * Handles all panel UI interactions and measurement tools
+ */
+
 // Unit conversion constants
 const CONVERSIONS = {
     toMeters: {
