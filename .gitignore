@@ -23,6 +23,7 @@ config.local.md
 # Build outputs
 dist/
 build/
+/.next/
 *.log
 
 # Secrets (NEVER commit these!)
