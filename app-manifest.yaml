@@ -1,0 +1,23 @@
+appName: MeasureMint
+sdkVersion: SDK_V2
+scopes:
+  - boards:read
+  - boards:write
+redirectUris:
+  - https://postmenstrual-disinfective-meri.ngrok-free.dev/auth
+icon:
+  - size: 24
+    url: http://localhost:3000/icons/icon-24.svg
+  - size: 32
+    url: http://localhost:3000/icons/icon-32.svg
+description: A professional measurement and calibration tool for technical drawings, blueprints, floor plans, and images on Miro boards.
+capabilities:
+  - widgets # For creating measurement lines and labels
+  - boards:write # For drawing on the board
+  - webPlugins:
+      - name: MeasureMint
+        description: Measure distances, areas, and angles on your Miro board
+        iconUrl: https://postmenstrual-disinfective-meri.ngrok-free.dev/icons/icon-32.svg
+        frameUrl: https://postmenstrual-disinfective-meri.ngrok-free.dev/app
+        mode: viewer
+        url: https://postmenstrual-disinfective-meri.ngrok-free.dev

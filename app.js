@@ -1,455 +1,372 @@
 /**
  * MeasureMint Panel Functionality
  * Handles all panel UI interactions and measurement tools
+ * Version: 2.0.0
  */
 
 // Unit conversion constants
 const CONVERSIONS = {
-    toMeters: {
-      'm': 1,
-      'cm': 0.01,
-      'mm': 0.001,
-      'km': 1000,
-      'ft': 0.3048,
-      'in': 0.0254,
-      'yd': 0.9144,
-      'mi': 1609.34
-    },
-    imperial: [
-      { name: 'Feet', abbr: 'ft', full: 'feet' },
-      { name: 'Inches', abbr: 'in', full: 'inches' },
-      { name: 'Yards', abbr: 'yd', full: 'yards' },
-      { name: 'Miles', abbr: 'mi', full: 'miles' }
-    ],
-    metric: [
-      { name: 'Meters', abbr: 'm', full: 'meters' },
-      { name: 'Centimeters', abbr: 'cm', full: 'centimeters' },
-      { name: 'Millimeters', abbr: 'mm', full: 'millimeters' },
-      { name: 'Kilometers', abbr: 'km', full: 'kilometers' }
-    ]
-  };
-  
-  let state = {
-    mode: 'none',
-    calibration: null,
-    measurements: [],
-    selectedImage: null,
-    unit: 'ft',
-    unitSystem: 'imperial',
-    clickCount: 0,
-    firstPoint: null,
-    tempCalibrationDistance: null,
-    calibrationUnit: 'ft'
-  };
-  
-  function convertUnits(value, fromUnit, toUnit) {
-    const meters = value * CONVERSIONS.toMeters[fromUnit];
-    return meters / CONVERSIONS.toMeters[toUnit];
+  toMeters: {
+    'm': 1,
+    'cm': 0.01,
+    'mm': 0.001,
+    'km': 1000,
+    'ft': 0.3048,
+    'in': 0.0254,
+    'yd': 0.9144,
+    'mi': 1609.34
+  },
+  fromMeters: {
+    'm': 1,
+    'cm': 100,
+    'mm': 1000,
+    'km': 0.001,
+    'ft': 3.28084,
+    'in': 39.3701,
+    'yd': 1.09361,
+    'mi': 0.000621371
   }
+};
   
-  function getAllConversions(value, fromUnit) {
-    const conversions = {};
-    for (const unit in CONVERSIONS.toMeters) {
-      conversions[unit] = convertUnits(value, fromUnit, unit);
+  // State management
+let state = {
+  calibration: null,
+  measurement: {
+    mode: 'none', // none, distance, area, angle
+    points: [],
+    tempLine: null,
+    tempShape: null
+  },
+  unit: 'mm',
+  knownDistance: null
+};
+  
+// Initialize the app
+async function init() {
+  try {
+    // Get user information
+    const userInfo = await miro.board.getUserInfo();
+
+    // Check authorization
+    const authResponse = await fetch(`/api/check-auth/${userInfo.id}`);
+    const authData = await authResponse.json();
+
+    if (!authData.authorized) {
+      console.error('User not authorized');
+      return;
     }
-    return conversions;
-  }
-  
-  async function init() {
-    await miro.board.ui.on('icon:click', async () => {
-      await miro.board.ui.openPanel({url: 'index.html'});
-    });
-  
+
+    // Set up event listeners
     setupEventListeners();
-    updateUnitSelector();
-    updateUI();
+    setupMiroListeners();
+
+  } catch (error) {
+    console.error('Initialization error:', error);
   }
+}
+
+// Set up UI event listeners
+function setupEventListeners() {
+  // Calibration
+  document.getElementById('calibrate').addEventListener('click', handleCalibrate);
+  document.getElementById('known-distance').addEventListener('input', handleDistanceInput);
+  document.getElementById('unit').addEventListener('change', handleUnitChange);
   
-  function setupEventListeners() {
-    document.getElementById('selectImageBtn').addEventListener('click', selectImage);
-    document.getElementById('calibrateBtn').addEventListener('click', startCalibrate);
-    document.getElementById('measureBtn').addEventListener('click', startMeasure);
-    document.getElementById('clearBtn').addEventListener('click', clearAll);
-    document.getElementById('unitSelect').addEventListener('change', (e) => {
-      state.unit = e.target.value;
-      updateUI();
-    });
-    document.getElementById('setCalibrationBtn').addEventListener('click', setCalibration);
-    document.getElementById('cancelCalibrationBtn').addEventListener('click', cancelCalibration);
-    document.getElementById('toggleConversions').addEventListener('click', toggleConversions);
+  // Measurement tools
+  document.getElementById('measure-distance').addEventListener('click', () => startMeasurement('distance'));
+  document.getElementById('measure-area').addEventListener('click', () => startMeasurement('area'));
+  document.getElementById('measure-angle').addEventListener('click', () => startMeasurement('angle'));
   
-    document.querySelectorAll('.unit-system-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        state.unitSystem = e.target.dataset.system;
-        document.querySelectorAll('.unit-system-btn').forEach(b => b.classList.remove('active'));
-        e.target.classList.add('active');
-        updateUnitSelector();
-        updateUI();
-      });
-    });
+  // Settings
+  document.getElementById('clear-measurements').addEventListener('click', clearMeasurements);
+  document.getElementById('reset-calibration').addEventListener('click', resetCalibration);
+}
+
+// Set up Miro board event listeners
+function setupMiroListeners() {
+  miro.board.ui.on('click', handleBoardClick);
+}
+
+// Handle calibration button click
+async function handleCalibrate() {
+  state.knownDistance = parseFloat(document.getElementById('known-distance').value);
+  state.unit = document.getElementById('unit').value;
+  
+  if (!state.knownDistance || isNaN(state.knownDistance)) {
+    await miro.board.notifications.showError('Please enter a valid distance');
+    return;
   }
-  
-  function updateUnitSelector() {
-    const unitSelect = document.getElementById('unitSelect');
-    const units = CONVERSIONS[state.unitSystem];
-    
-    unitSelect.innerHTML = units.map(u => 
-      `<option value="${u.abbr}">${u.name} (${u.abbr})</option>`
-    ).join('');
-    
-    state.unit = units[0].abbr;
+
+  state.measurement.mode = 'calibrate';
+  state.measurement.points = [];
+  await miro.board.notifications.showInfo('Click two points to set the scale');
+}
+
+// Handle distance input changes
+function handleDistanceInput(event) {
+  state.knownDistance = parseFloat(event.target.value);
+}
+
+// Handle unit changes
+function handleUnitChange(event) {
+  state.unit = event.target.value;
+}
+
+// Handle board clicks for measurements and calibration
+async function handleBoardClick(event) {
+  const { x, y } = event.data;
+  state.measurement.points.push({ x, y });
+
+  if (state.measurement.mode === 'calibrate') {
+    handleCalibrationClick({ x, y });
+  } else if (state.measurement.mode === 'distance') {
+    handleDistanceClick({ x, y });
+  } else if (state.measurement.mode === 'area') {
+    handleAreaClick({ x, y });
+  } else if (state.measurement.mode === 'angle') {
+    handleAngleClick({ x, y });
   }
-  
-  async function selectImage() {
-    try {
-      const selection = await miro.board.getSelection();
-      const images = selection.filter(item => item.type === 'image');
-      
-      if (images.length === 0) {
-        await miro.board.notifications.showError('Please select an image on the board first');
-        return;
+}
+
+// Handle calibration point clicks
+async function handleCalibrationClick(point) {
+  if (state.measurement.points.length === 1) {
+    // Draw temporary line
+    state.measurement.tempLine = await miro.board.createShape({
+      type: 'line',
+      x: point.x,
+      y: point.y,
+      width: 0,
+      height: 0,
+      style: {
+        strokeColor: '#10bb82',
+        strokeWidth: 2
       }
-  
-      state.selectedImage = images[0];
-      updateStatus(`Image selected. Now you can calibrate the scale.`);
-      document.getElementById('calibrateBtn').disabled = false;
-      updateUI();
-    } catch (error) {
-      await miro.board.notifications.showError('Error selecting image: ' + error.message);
-    }
-  }
-  
-  async function startCalibrate() {
-    if (state.mode === 'calibrate') {
-      stopMode();
-      return;
-    }
-  
-    state.mode = 'calibrate';
-    state.clickCount = 0;
-    state.firstPoint = null;
-    updateStatus('Calibration mode: Click first point on a known distance...');
-    updateUI();
-  
-    document.getElementById('calibrateInfo').style.display = 'block';
-    document.getElementById('measureInfo').style.display = 'none';
-  
-    await miro.board.ui.on('click', handleBoardClick);
-  }
-  
-  async function startMeasure() {
-    if (!state.calibration) {
-      await miro.board.notifications.showError('Please calibrate the scale first');
-      return;
-    }
-  
-    if (state.mode === 'measure') {
-      stopMode();
-      return;
-    }
-  
-    state.mode = 'measure';
-    state.clickCount = 0;
-    state.firstPoint = null;
-    updateStatus('Measure mode: Click first point to measure...');
-    updateUI();
-  
-    document.getElementById('calibrateInfo').style.display = 'none';
-    document.getElementById('measureInfo').style.display = 'block';
-  
-    await miro.board.ui.on('click', handleBoardClick);
-  }
-  
-  async function handleBoardClick(event) {
-    if (state.mode === 'none') return;
-  
-    const x = event.x;
-    const y = event.y;
-  
-    if (state.clickCount === 0) {
-      state.firstPoint = {x, y};
-      state.clickCount = 1;
-      
-      await miro.board.createShape({
-        shape: 'circle',
-        x: x,
-        y: y,
-        width: 20,
-        height: 20,
-        style: {
-          fillColor: state.mode === 'calibrate' ? '#10b981' : '#4262ff',
-          borderColor: 'transparent'
-        }
-      });
-  
-      updateStatus(`${state.mode === 'calibrate' ? 'Calibration' : 'Measure'} mode: Click second point...`);
-    } else if (state.clickCount === 1) {
-      const secondPoint = {x, y};
-      
-      await miro.board.createShape({
-        shape: 'circle',
-        x: x,
-        y: y,
-        width: 20,
-        height: 20,
-        style: {
-          fillColor: state.mode === 'calibrate' ? '#10b981' : '#4262ff',
-          borderColor: 'transparent'
-        }
-      });
-  
-      await miro.board.createConnector({
-        start: {
-          position: {x: state.firstPoint.x, y: state.firstPoint.y}
-        },
-        end: {
-          position: {x: secondPoint.x, y: secondPoint.y}
-        },
-        style: {
-          strokeColor: state.mode === 'calibrate' ? '#10b981' : '#4262ff',
-          strokeWidth: 3
-        }
-      });
-  
-      const distance = calculateDistance(state.firstPoint, secondPoint);
-  
-      if (state.mode === 'calibrate') {
-        state.tempCalibrationDistance = distance;
-        showCalibrationModal();
-      } else if (state.mode === 'measure') {
-        const realDistanceInCalibrationUnit = (distance / state.calibration.pixelLength) * state.calibration.distance;
-        const realDistance = convertUnits(realDistanceInCalibrationUnit, state.calibration.unit, state.unit);
-        
-        const allConversions = getAllConversions(realDistance, state.unit);
-        
-        state.measurements.push({
-          id: Date.now(),
-          distance: realDistance,
-          unit: state.unit,
-          pixels: distance,
-          conversions: allConversions
-        });
-  
-        await miro.board.createText({
-          content: `${realDistance.toFixed(2)} ${state.unit}`,
-          x: (state.firstPoint.x + secondPoint.x) / 2,
-          y: (state.firstPoint.y + secondPoint.y) / 2 - 30,
-          width: 200,
-          style: {
-            color: '#4262ff',
-            fontSize: 14,
-            textAlign: 'center',
-            fontWeight: 'bold'
-          }
-        });
-  
-        await miro.board.notifications.showInfo(`Measured: ${realDistance.toFixed(2)} ${state.unit}`);
-      }
-  
-      state.clickCount = 0;
-      state.firstPoint = null;
-      updateUI();
-    }
-  }
-  
-  function calculateDistance(p1, p2) {
-    return Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
-  }
-  
-  function showCalibrationModal() {
-    const modal = document.getElementById('calibrationModal');
-    const unitGrid = document.getElementById('unitGrid');
-    
-    const allUnits = [...CONVERSIONS.imperial, ...CONVERSIONS.metric];
-    unitGrid.innerHTML = allUnits.map(u => `
-      <div class="unit-option ${u.abbr === state.unit ? 'selected' : ''}" data-unit="${u.abbr}">
-        <div class="unit-option-name">${u.name}</div>
-        <div class="unit-option-abbr">${u.abbr}</div>
-      </div>
-    `).join('');
-  
-    unitGrid.querySelectorAll('.unit-option').forEach(option => {
-      option.addEventListener('click', (e) => {
-        unitGrid.querySelectorAll('.unit-option').forEach(o => o.classList.remove('selected'));
-        option.classList.add('selected');
-        state.calibrationUnit = option.dataset.unit;
-        document.getElementById('distanceLabel').textContent = 
-          `Enter the distance in ${option.querySelector('.unit-option-name').textContent}:`;
-      });
     });
-  
-    state.calibrationUnit = state.unit;
-    modal.classList.add('show');
-    document.getElementById('distanceInput').focus();
-  }
-  
-  function setCalibration() {
-    const distance = parseFloat(document.getElementById('distanceInput').value);
-    
-    if (!distance || distance <= 0) {
-      miro.board.notifications.showError('Please enter a valid distance');
-      return;
-    }
-  
+  } else if (state.measurement.points.length === 2) {
+    // Calculate scale
+    const distance = calculateDistance(state.measurement.points[0], state.measurement.points[1]);
     state.calibration = {
-      pixelLength: state.tempCalibrationDistance,
-      distance: distance,
-      unit: state.calibrationUnit
+      pixelDistance: distance,
+      realDistance: state.knownDistance,
+      unit: state.unit
     };
-  
-    document.getElementById('calibrationModal').classList.remove('show');
-    document.getElementById('distanceInput').value = '';
-    
-    stopMode();
-    document.getElementById('measureBtn').disabled = false;
-    
-    const pixelsPerUnit = state.calibration.pixelLength / state.calibration.distance;
-    updateStatus(`Calibration set: 1 ${state.calibration.unit} = ${pixelsPerUnit.toFixed(2)} pixels`);
-    
-    document.getElementById('unitDetails').style.display = 'block';
-    updateCalibrationInfo();
-    
-    miro.board.notifications.showInfo(`Calibration complete! You can now measure distances.`);
-  }
-  
-  function updateCalibrationInfo() {
-    if (!state.calibration) return;
-  
-    const pixelsPerUnit = state.calibration.pixelLength / state.calibration.distance;
-    const calibInfo = document.getElementById('calibrationInfo');
-    calibInfo.innerHTML = `
-      Scale: 1 ${state.calibration.unit} = ${pixelsPerUnit.toFixed(2)} pixels<br>
-      Base measurement: ${state.calibration.distance} ${state.calibration.unit}
-    `;
-  }
-  
-  function toggleConversions() {
-    const table = document.getElementById('conversionTable');
-    const btn = document.getElementById('toggleConversions');
-    
-    if (table.style.display === 'none') {
-      table.style.display = 'block';
-      btn.textContent = 'Hide conversion table';
-      generateConversionTable();
-    } else {
-      table.style.display = 'none';
-      btn.textContent = 'Show conversion table';
+
+    // Clear temporary line
+    if (state.measurement.tempLine) {
+      await state.measurement.tempLine.delete();
+      state.measurement.tempLine = null;
     }
+
+    // Reset points
+    state.measurement.points = [];
+    state.measurement.mode = 'none';
+
+    await miro.board.notifications.showSuccess('Calibration completed');
   }
-  
-  function generateConversionTable() {
-    if (!state.calibration) return;
-  
-    const conversions = getAllConversions(state.calibration.distance, state.calibration.unit);
-    const table = document.getElementById('conversionTable');
-    
-    const imperialUnits = CONVERSIONS.imperial.map(u => u.abbr);
-    const metricUnits = CONVERSIONS.metric.map(u => u.abbr);
-  
-    let html = '<table><tr><th>Unit</th><th>Value</th></tr>';
-    
-    html += '<tr><td colspan="2" style="font-weight: 600; background: #f3f4f6;">Imperial</td></tr>';
-    imperialUnits.forEach(unit => {
-      const unitInfo = CONVERSIONS.imperial.find(u => u.abbr === unit);
-      html += `<tr><td>${unitInfo.name}</td><td>${conversions[unit].toFixed(4)} ${unit}</td></tr>`;
+}
+
+// Handle distance point clicks
+async function handleDistanceClick(point) {
+  if (state.measurement.points.length === 1) {
+    // Draw temporary line
+    const line = await miro.board.createShape({
+      type: 'line',
+      x: point.x,
+      y: point.y,
+      width: 0,
+      height: 0,
+      style: {
+        strokeColor: '#4262ff',
+        strokeWidth: 2
+      }
     });
-    
-    html += '<tr><td colspan="2" style="font-weight: 600; background: #f3f4f6;">Metric</td></tr>';
-    metricUnits.forEach(unit => {
-      const unitInfo = CONVERSIONS.metric.find(u => u.abbr === unit);
-      html += `<tr><td>${unitInfo.name}</td><td>${conversions[unit].toFixed(4)} ${unit}</td></tr>`;
+
+    const distance = calculateDistance(state.measurement.points[0], state.measurement.points[1]);
+    const realDistance = convertPixelsToUnits(distance);
+
+    // Add text label
+    await miro.board.createText({
+      content: `${realDistance.toFixed(2)} ${state.unit}`,
+      x: (state.measurement.points[0].x + state.measurement.points[1].x) / 2,
+      y: (state.measurement.points[0].y + state.measurement.points[1].y) / 2 - 20,
+      style: {
+        textAlign: 'center',
+        color: '#4262ff',
+        fontSize: 14,
+        fontWeight: 'bold'
+      }
     });
-    
-    html += '</table>';
-    table.innerHTML = html;
+
+    // Reset points
+    state.measurement.points = [];
   }
-  
-  function cancelCalibration() {
-    document.getElementById('calibrationModal').classList.remove('show');
-    document.getElementById('distanceInput').value = '';
-    stopMode();
+}
+
+// Handle area point clicks
+async function handleAreaClick(point) {
+  if (state.measurement.points.length > 2) {
+    // Create area shape
+    const polygon = await miro.board.createShape({
+      type: 'polygon',
+      points: state.measurement.points,
+      style: {
+        fillColor: '#4262ff20',
+        strokeColor: '#4262ff',
+        strokeWidth: 2
+      }
+    });
+
+    const area = calculateArea(state.measurement.points);
+    const realArea = convertPixelsToUnits(area, true);
+
+    // Add area label
+    await miro.board.createText({
+      content: `${realArea.toFixed(2)} ${state.unit}²`,
+      x: calculateCentroid(state.measurement.points).x,
+      y: calculateCentroid(state.measurement.points).y,
+      style: {
+        textAlign: 'center',
+        color: '#4262ff',
+        fontSize: 14,
+        fontWeight: 'bold'
+      }
+    });
+
+    // Reset points
+    state.measurement.points = [];
+    state.measurement.mode = 'none';
   }
-  
-  function stopMode() {
-    state.mode = 'none';
-    state.clickCount = 0;
-    state.firstPoint = null;
-    updateUI();
-    miro.board.ui.off('click', handleBoardClick);
+}
+
+// Handle angle point clicks
+async function handleAngleClick(point) {
+  if (state.measurement.points.length === 3) {
+    const angle = calculateAngle(
+      state.measurement.points[0],
+      state.measurement.points[1],
+      state.measurement.points[2]
+    );
+
+    // Add angle label
+    await miro.board.createText({
+      content: `${angle.toFixed(1)}°`,
+      x: state.measurement.points[1].x,
+      y: state.measurement.points[1].y - 20,
+      style: {
+        textAlign: 'center',
+        color: '#4262ff',
+        fontSize: 14,
+        fontWeight: 'bold'
+      }
+    });
+
+    // Reset points
+    state.measurement.points = [];
+    state.measurement.mode = 'none';
   }
-  
-  async function clearAll() {
-    if (confirm('Clear all measurements and calibration?')) {
-      state.calibration = null;
-      state.measurements = [];
-      state.clickCount = 0;
-      state.firstPoint = null;
-      stopMode();
-      
-      document.getElementById('measureBtn').disabled = true;
-      document.getElementById('unitDetails').style.display = 'none';
-      updateStatus('Cleared. Select an image to start again.');
-      updateUI();
-      
-      await miro.board.notifications.showInfo('All measurements cleared');
-    }
+}
+
+// Start a measurement
+async function startMeasurement(mode) {
+  if (!state.calibration && mode !== 'angle') {
+    await miro.board.notifications.showError('Please calibrate the scale first');
+    return;
   }
-  
-  function updateStatus(message) {
-    const statusEl = document.getElementById('status');
-    statusEl.textContent = message;
-    
-    if (state.calibration) {
-      statusEl.classList.add('status-active');
-    } else {
-      statusEl.classList.remove('status-active');
-    }
+
+  state.measurement.mode = mode;
+  state.measurement.points = [];
+
+  let message = '';
+  switch (mode) {
+    case 'distance':
+      message = 'Click two points to measure distance';
+      break;
+    case 'area':
+      message = 'Click points to measure area. Double click to complete.';
+      break;
+    case 'angle':
+      message = 'Click three points to measure angle';
+      break;
   }
-  
-  function updateUI() {
-    const calibrateBtn = document.getElementById('calibrateBtn');
-    const measureBtn = document.getElementById('measureBtn');
-    const clearBtn = document.getElementById('clearBtn');
-  
-    calibrateBtn.classList.toggle('btn-active', state.mode === 'calibrate');
-    measureBtn.classList.toggle('btn-active', state.mode === 'measure');
-    
-    clearBtn.disabled = !state.calibration && state.measurements.length === 0;
-  
-    const measurementsList = document.getElementById('measurementsList');
-    const measurementsContainer = document.getElementById('measurementsContainer');
-    
-    if (state.measurements.length > 0) {
-      measurementsList.style.display = 'block';
-      measurementsContainer.innerHTML = state.measurements.map((m, i) => {
-        const currentValue = convertUnits(m.distance, m.unit, state.unit);
-        const imperialConv = `${m.conversions.ft.toFixed(2)} ft, ${m.conversions.in.toFixed(2)} in`;
-        const metricConv = `${m.conversions.m.toFixed(2)} m, ${m.conversions.cm.toFixed(2)} cm`;
-        
-        return `
-          <div class="measurement-item">
-            <div>
-              <div class="measurement-label">Measurement ${i + 1}</div>
-              <div class="measurement-value">${currentValue.toFixed(2)} ${state.unit}</div>
-              <div class="measurement-conversions">
-                Imperial: ${imperialConv} | Metric: ${metricConv}
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
-    } else {
-      measurementsList.style.display = 'none';
-    }
-  
-    document.getElementById('calibrateInfo').style.display = 
-      state.mode === 'calibrate' ? 'block' : 'none';
-    document.getElementById('measureInfo').style.display = 
-      state.mode === 'measure' ? 'block' : 'none';
+
+  await miro.board.notifications.showInfo(message);
+}
+
+// Clear all measurements
+async function clearMeasurements() {
+  // Implementation will depend on how we're storing measurements
+  state.measurement.points = [];
+  if (state.measurement.tempLine) {
+    await state.measurement.tempLine.delete();
+    state.measurement.tempLine = null;
   }
+  if (state.measurement.tempShape) {
+    await state.measurement.tempShape.delete();
+    state.measurement.tempShape = null;
+  }
+}
+
+// Reset calibration
+function resetCalibration() {
+  state.calibration = null;
+  state.knownDistance = null;
+  document.getElementById('known-distance').value = '';
+}
+
+// Utility function to calculate distance between two points
+function calculateDistance(point1, point2) {
+  return Math.sqrt(
+    Math.pow(point2.x - point1.x, 2) + 
+    Math.pow(point2.y - point1.y, 2)
+  );
+}
+
+// Calculate area of a polygon
+function calculateArea(points) {
+  let area = 0;
+  for (let i = 0; i < points.length; i++) {
+    let j = (i + 1) % points.length;
+    area += points[i].x * points[j].y;
+    area -= points[j].x * points[i].y;
+  }
+  area = Math.abs(area) / 2;
+  return area;
+}
+
+// Calculate centroid of a polygon
+function calculateCentroid(points) {
+  let x = 0;
+  let y = 0;
+  for (let i = 0; i < points.length; i++) {
+    x += points[i].x;
+    y += points[i].y;
+  }
+  return {
+    x: x / points.length,
+    y: y / points.length
+  };
+}
+
+// Calculate angle between three points
+function calculateAngle(p1, p2, p3) {
+  const angle1 = Math.atan2(p1.y - p2.y, p1.x - p2.x);
+  const angle2 = Math.atan2(p3.y - p2.y, p3.x - p2.x);
+  let angle = Math.abs(angle1 - angle2) * (180 / Math.PI);
+  if (angle > 180) angle = 360 - angle;
+  return angle;
+}
+
+// Convert pixel distance to real distance
+function convertPixelsToUnits(pixels, isArea = false) {
+  if (!state.calibration) return null;
   
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  const realPerPixel = state.calibration.realDistance / state.calibration.pixelDistance;
+  const meters = pixels * realPerPixel * CONVERSIONS.toMeters[state.calibration.unit];
+  const converted = meters * CONVERSIONS.fromMeters[state.unit];
+  return isArea ? Math.pow(converted, 2) : converted;
+}
+
+// Initialize the app
+init();
   }

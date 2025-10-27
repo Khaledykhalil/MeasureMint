@@ -30,6 +30,14 @@ Perfect for:
 
 ### Prerequisites
 
+Choose one of the following setup methods:
+
+#### Option 1: Docker (Recommended)
+- Docker Desktop
+- A Miro Developer account
+- A Miro Developer team
+
+#### Option 2: Local Setup
 - Node.js 14.15 or later
 - A Miro Developer account
 - A Miro Developer team
@@ -38,16 +46,83 @@ Perfect for:
 
 1. **Clone the repository**
 ```bash
-   git clone https://github.com/YOUR-USERNAME/measuremint.git
-   cd measuremint
+git clone https://github.com/YOUR-USERNAME/measuremint.git
+cd measuremint
 ```
 
-2. **Install dependencies**
+2. **Choose your setup method:**
+
+#### Docker Setup (Recommended)
+
+a. **Start the application**
 ```bash
-   npm install
+# Build and start the containers
+npm run docker:dev
 ```
 
-3. **Start the development server**
+This command will:
+- Build the Docker image
+- Start the Node.js application
+- Start ngrok for HTTPS tunneling
+- Mount your code for live development
+- Set up persistent database storage
+
+The app will be available at the ngrok URL displayed in the console.
+
+b. **Other Docker commands**
+```bash
+# Build the Docker images
+npm run docker:build
+
+# Start the containers
+npm run docker:up
+
+# Stop the containers
+npm run docker:down
+```
+
+#### Local Setup
+
+a. **Install dependencies**
+```bash
+npm install
+```
+
+b. **Configure environment variables**
+```bash
+cp .sample.env .env
+```
+Update the `.env` file with your:
+- Miro app client ID and secret
+- OAuth redirect URL
+- Encryption key (32 characters)
+- Port and environment settings
+
+4. **Start the development server**
+```bash
+npm run dev
+```
+
+### Configuration
+
+The app requires the following environment variables in your `.env` file:
+
+```env
+# Miro App credentials
+MIRO_CLIENT_ID=your_miro_client_id
+MIRO_CLIENT_SECRET=your_miro_client_secret
+MIRO_REDIRECT_URL=http://localhost:3000/auth
+
+# Server configuration
+PORT=3000
+NODE_ENV=development
+
+# Security
+ENCRYPTION_KEY=your_32_character_encryption_key
+
+# Database configuration
+DB_PATH=db/tokens.db
+```
 ```bash
    npm start
 ```
@@ -140,7 +215,45 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📄 License
+## � Troubleshooting
+
+### Common Issues
+
+1. **OAuth Error: redirect_uri_mismatch**
+   - Verify the redirect URI in your Miro app settings matches your .env file
+   - Make sure you're using HTTPS when required
+   - When using Docker, check the ngrok URL matches your Miro app settings
+
+2. **Cannot find module 'xyz'**
+   - In Docker: Run `npm run docker:dev` to rebuild with new dependencies
+   - Local setup: Run `npm install`
+
+### Docker-Specific Issues
+
+1. **Port already in use**
+   ```bash
+   # Stop all running containers
+   npm run docker:down
+   
+   # Remove any orphaned containers
+   docker-compose down --remove-orphans
+   ```
+
+2. **Changes not reflecting**
+   - Ensure your code is properly mounted in docker-compose.yml
+   - Try rebuilding the containers: `npm run docker:dev`
+
+3. **Database connectivity issues**
+   - Check if the db volume is properly mounted
+   - Verify permissions on the db directory
+   - Ensure the database path in .env matches the Docker volume path
+
+4. **Ngrok issues**
+   - Verify your authtoken is correctly set in .env
+   - Check the ngrok container logs: `docker-compose logs ngrok`
+   - Try restarting the containers: `npm run docker:down && npm run docker:dev`
+
+## �📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
