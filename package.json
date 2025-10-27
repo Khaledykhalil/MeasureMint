@@ -1,26 +1,27 @@
 {
-  "name": "measuremint",
-  "version": "1.0.0",
-  "description": "MeasureMint is a Miro application that provides measurement and calibration functionality for technical drawings, blueprints, floor plans, and images on Miro boards.",
-  "main": "server.js",
+  "name": "miro-base",
+  "version": "0.1.0",
+  "license": "MIT",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js",
-    "docker:build": "docker-compose build",
-    "docker:up": "docker-compose up",
-    "docker:down": "docker-compose down",
-    "docker:dev": "docker-compose up --build"
+    "build": "next build",
+    "start": "next dev -p 3000",
+    "lint": "next lint",
+    "dev": "next dev -p 3000",
+    "dev:ngrok": "ngrok http 3000",
+    "dev:all": "concurrently -k \"npm:dev\" \"npm:dev:ngrok\"",
+    "manifest:update": "node scripts/update-manifest.js"
   },
   "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.3.1",
-    "express": "^4.18.2",
-    "express-session": "^1.17.3",
-    "helmet": "^7.0.0",
-    "sqlite": "^5.1.1",
-    "sqlite3": "^5.1.7"
+    "next": "14.0.1",
+    "@mirohq/miro-api": "^2.0.0",
+    "mirotone": "5",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "dotenv": "^16.0.3",
+    "cookie": "^0.5.0"
   },
   "devDependencies": {
-    "nodemon": "^3.0.1"
+    "concurrently": "^8.2.2",
+    "js-yaml": "^4.1.0"
   }
 }
