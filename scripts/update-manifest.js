@@ -24,7 +24,8 @@ try {
   const doc = yaml.load(raw);
 
   // Adjust fields for SDK v2 manifest
-  doc.sdkUri = `${baseUrl}/`;
+  // Point the board sidebar to the dedicated panel route
+  doc.sdkUri = `${baseUrl}/panel`;
   doc.redirectUris = [`${baseUrl}/api/redirect`];
 
   const updated = yaml.dump(doc, { noRefs: true, lineWidth: 120 });
