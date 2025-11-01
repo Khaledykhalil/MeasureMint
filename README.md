@@ -9,99 +9,68 @@
 ## ✨ Features
 
 ### 🎯 Core Capabilities
-- **9 Professional Measurement Tools** - Complete toolkit for construction and design professionals
-- **Precise Scale Calibration** - Set scale using any known distance, or choose from 20+ architectural scale presets
-- **Feet-Inches Formatting** - Measurements display in construction-standard format (e.g., 12' 6" instead of 12.5 ft)
-- **Multiple Scale Regions** - Handle mixed-scale drawings by defining different calibration zones
+- **Precise Scale Calibration** - Set scale using any known distance on your drawing
+- **Dual-Axis Calibration** - Separate X and Y axis calibration for distorted or stretched images
+- **Linear Distance Measurement** - Click two points to measure straight-line distances
 - **8 Unit Types** - ft, in, m, cm, mm, yd, mi, km with automatic conversions
 - **No Image Selection Required** - Measure anywhere on the board instantly
 - **Visual Feedback** - See your measurements directly on the board with connecting lines
-- **CSV Export** - Export all measurements to CSV for analysis or documentation
 - **Real-time Updates** - All measurements update when you change units
 
 ### 📐 Measurement Tools
 
-#### 1. **Linear Distance** 
-Click two points to measure straight-line distance. Perfect for dimensions, diagonals, and direct measurements.
-
-#### 2. **Area & Perimeter**
-Click multiple points to define a polygon. Get both area and perimeter measurements instantly. Ideal for rooms, lots, or any bounded space.
-
-#### 3. **Polyline Length**
-Measure complex paths by clicking multiple points. Total length is calculated along the entire path. Essential for roads, piping, or winding routes.
-
-#### 4. **Count Tool**
-Click to place counting markers on the board. Keep track of items like fixtures, columns, or repeated elements.
-
-#### 5. **Volume Calculation**
-Define a polygon area and specify height to calculate volume. Perfect for concrete pours, excavation, or material estimates.
-
-#### 6. **Angle Measurement**
-Click three points to measure angles. Displays in degrees with full 360° range. Essential for slopes, intersections, and alignments.
-
-#### 7. **Circle Measurements**
-Click center and edge to get radius, diameter, circumference, and area. Perfect for circular features like columns or roundabouts.
-
-#### 8. **Cutout/Subtract Areas** ⭐
-Calculate net areas by subtracting openings from main areas. Define a main polygon, then click "Add Cutout" to subtract windows, doors, or other openings. Shows gross area, total cutouts, and net area (Gross - Cutouts = Net).
-
-#### 9. **Slope/Pitch Tool** ⭐
-Click two points and enter height change to get:
-- **Rise:Run ratio** (e.g., 4:12 for roofing)
-- **Percentage** (e.g., 33.3% for roads)
-- **Degrees** (e.g., 18.4° for ramps)
+#### **Linear Distance** 
+Click two points to measure straight-line distance. Perfect for dimensions, diagonals, and direct measurements on blueprints, floor plans, and technical drawings.
 
 ### 🏗️ Built for Professionals
 Perfect for:
-- **Architecture** - Floor plans, elevations, site plans, room areas
-- **Engineering** - Technical drawings, schematics, diagrams, slope analysis  
-- **Construction** - Blueprints, shop drawings, as-built documentation, material takeoffs
-- **Interior Design** - Space planning, furniture layouts, area calculations
+- **Architecture** - Floor plans, elevations, site plans
+- **Engineering** - Technical drawings, schematics, diagrams
+- **Construction** - Blueprints, shop drawings, as-built documentation
+- **Interior Design** - Space planning, furniture layouts
 - **Real Estate** - Property measurements, site analysis, lot dimensions
-- **Project Management** - Visual project documentation, quantity tracking
+- **Project Management** - Visual project documentation
 
-### 🎯 Scale Calibration Options
+### 🎯 Calibration System
 
-#### Option 1: Draw Calibration Line (Recommended)
-1. Click "Calibrate" tool
-2. Click two points on a known distance
-3. Enter the actual distance
-4. Choose your unit
-5. Click "Set Calibration"
+MeasureMint features a robust dual-axis calibration system to handle real-world drawings:
 
-#### Option 2: Quick Scale Presets
-Choose from 20+ pre-configured architectural scales:
-- **Imperial**: 1/16"=1', 1/8"=1', 1/4"=1', 1/2"=1', 1"=1', and more
-- **Metric**: 1:50, 1:100, 1:200, 1:500, and more
+#### **Draw Calibration Line**
+1. Click "Draw New Line" under Calibration
+2. Click two points on a known distance (e.g., a dimension line showing "20 ft")
+3. Enter the actual distance in the dialog
+4. Choose your unit (ft, in, m, cm, etc.)
+5. Choose which axis to calibrate (X, Y, or Both)
+6. Click "Set Calibration"
 
-Simply select a scale preset and start measuring immediately!
+#### **Reuse Existing Line**
+If you have existing lines or shapes on the board:
+1. Click "Reuse Existing Line"
+2. Select a line or connector from your board
+3. Enter the actual distance it represents
+4. Choose your unit and axis
+5. The app uses your existing line for calibration
 
-### 🗺️ Multiple Scale Regions ⭐
-Handle drawings with different scales in different areas:
-1. Click "Add Scale Region"
-2. Draw a polygon around an area with a specific scale
-3. Set the calibration for that region
-4. Repeat for other scale zones
-5. MeasureMint automatically detects which region you're measuring in and applies the correct scale
-
-Perfect for site plans with detail callouts, multi-scale construction documents, or mixed drawings.
+#### **Update Calibration**
+Modify your calibration settings at any time without redrawing:
+- Change the reference distance
+- Switch between units
+- Adjust X or Y axis independently
+- Perfect for handling distorted or stretched images
 
 ### 🔄 Smart Unit Conversion
 Seamlessly convert between:
 - **Imperial**: feet, inches, yards, miles
 - **Metric**: meters, centimeters, millimeters, kilometers
-- **Feet-Inches Format**: Toggle feet measurements to display as 12' 6" (rounded to nearest inch)
 - All conversions happen automatically!
 
 ### 🎨 User Experience
 - Clean, intuitive interface
 - No image selection required - measure anywhere
 - Works with any drawing, PDF, or image on Miro
-- Scale presets for instant measurement
-- Multiple scale regions for complex drawings
-- Professional measurement display with feet-inches formatting
-- CSV export for all measurements
-- Keyboard shortcuts support
+- Dual-axis support for distorted images
+- Professional measurement display
+- Persistent measurements on the board
 
 ## 🎬 Demo
 
@@ -132,8 +101,8 @@ Choose one of the following setup methods:
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/YOUR-USERNAME/measuremint.git
-cd measuremint
+git clone https://github.com/Khaledykhalil/MeasureMint.git
+cd MeasureMint
 ```
 
 2. **Choose your setup method:**
@@ -229,100 +198,52 @@ DB_PATH=db/tokens.db
 
 ## 📖 How to Use
 
-### Quick Start (3 Simple Steps!)
+### Quick Start (2 Simple Steps!)
 
 #### 1. Calibrate Scale
-**Option A: Draw a Line** (Recommended)
-1. Click "Calibrate Scale" 
-2. Click two points on a known distance (e.g., a dimension line showing "20 ft")
+1. Click "Draw New Line" under Calibration
+2. Click two points on a known distance in your drawing (e.g., a dimension line showing "20 ft")
 3. Enter the actual distance
 4. Choose your unit (ft, in, m, cm, etc.)
-5. Click "Set Calibration"
+5. Choose which axis to calibrate:
+   - **Both** - Normal drawings (default)
+   - **X-Axis Only** - If horizontal distances are distorted
+   - **Y-Axis Only** - If vertical distances are distorted
+6. Click "Set Calibration"
 
-**Option B: Use Scale Preset** (Even Faster!)
-1. Click "Calibrate Scale"
-2. Click "Use Scale Preset"
-3. Select your drawing's scale (e.g., 1/4"=1'-0")
-4. Start measuring immediately!
+**Alternative: Reuse Existing Line**
+- If you have lines already on the board, click "Reuse Existing Line"
+- Select any line or connector
+- Enter its actual distance
+- Perfect for using existing dimension lines!
 
-#### 2. Choose Your Measurement Tool
-Click any tool to start measuring:
-- **Linear** - Two-point distance measurement
-- **Area** - Multi-point polygon area and perimeter
-- **Polyline** - Multi-point path length
-- **Count** - Place counting markers
-- **Volume** - Area × Height for volume calculations
-- **Angle** - Three-point angle measurement
-- **Circle** - Center + edge for radius, diameter, area
-- **Cutout** - Calculate net area (gross - cutouts)
-- **Slope** - Rise/run, percentage, and degree measurements
-
-#### 3. Take Measurements
-Each tool has its own interaction:
-- **Linear**: Click start point → click end point
-- **Area**: Click points to draw polygon → click "Complete Area"
-- **Polyline**: Click points along path → click "Complete Polyline"
-- **Count**: Click anywhere to place markers
-- **Volume**: Draw area polygon → enter height → complete
-- **Angle**: Click vertex → first point → second point
-- **Circle**: Click center → click edge point
-- **Cutout**: Draw main area → click "Add Cutout" → draw cutout polygons → complete
-- **Slope**: Click start point → click end point → enter height change
+#### 2. Measure Distances
+1. Click "Measure Distance" under Measurements
+2. Click your start point on the board
+3. Click your end point
+4. See the measurement displayed with a connecting line
+5. Change units anytime using the unit dropdown
 
 ### Advanced Features
 
-#### Multiple Scale Regions
-For drawings with different scales in different areas:
-1. Click "Add Scale Region"
-2. Click points to draw a polygon around the first scale area
-3. Calibrate the scale for that region
-4. Click "Add Scale Region" again for the next area
-5. When measuring, MeasureMint automatically uses the correct scale based on location
+#### Update Calibration
+Made a mistake or need to adjust? Click "Update Calibration" to:
+- Change the reference distance
+- Switch between units
+- Modify which axis is calibrated
+- No need to redraw your calibration line!
 
-#### Cutout/Subtract Areas
-Calculate net areas by subtracting openings:
-1. Click "Cutout Areas" tool
-2. Draw the main polygon (gross area)
-3. Click "Complete Main Area"
-4. Click "Add Cutout" for each opening
-5. Draw each cutout polygon
-6. Complete each cutout
-7. See: Gross Area - Total Cutouts = Net Area
-
-#### Slope/Pitch Calculations
-Get comprehensive slope measurements:
-1. Click "Slope/Pitch" tool
-2. Click start point (e.g., bottom of slope)
-3. Click end point (e.g., top of slope)
-4. Enter the height change (rise)
-5. Get three formats:
-   - Rise:Run (e.g., 4:12 for roofing)
-   - Percentage (e.g., 8.33% for ADA ramps)
-   - Degrees (e.g., 18.43° for general use)
-
-#### Feet-Inches Display
-For imperial measurements in feet:
-1. Take any measurement in feet
-2. The display shows feet-inches format: "12' 6"" instead of "12.5 ft"
-3. Rounded to the nearest inch for construction accuracy
-
-#### Export to CSV
-1. Take multiple measurements of any type
-2. Click "Export to CSV"
-3. Get a spreadsheet with:
-   - Measurement type
-   - All values (area, perimeter, volume, etc.)
-   - Units
-   - Timestamp
-   
-Perfect for quantity takeoffs, documentation, and cost estimation!
+#### Dual-Axis Calibration
+For distorted or stretched images:
+1. Set X-axis calibration using a horizontal reference
+2. Set Y-axis calibration using a vertical reference
+3. MeasureMint automatically applies the correct scale based on measurement direction
 
 ### Switch Units Anytime
-Change units at any time without re-measuring:
+Change units without re-measuring:
 1. Use the unit selector on any measurement
 2. Choose from: ft, in, yd, mi, m, cm, mm, km
 3. All measurements update automatically
-4. Each measurement can use different units
 
 ## 🛠️ Development
 
@@ -425,12 +346,15 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Miro Marketplace](https://miro.com/marketplace/) - Coming soon!
 - [Miro Developer Platform](https://developers.miro.com)
 - [Miro SDK Documentation](https://developers.miro.com/docs/)
-- [Report Issues](https://github.com/YOUR-USERNAME/measuremint/issues)
+- [Report Issues](https://github.com/Khaledykhalil/MeasureMint/issues)
+- [Privacy Policy](https://measuremint.app/privacy-policy)
+- [Terms of Service](https://measuremint.app/terms-of-service)
 
 ## 👤 Author
 
 **Khaled Khalil**
-- GitHub: [@khaledykhalil](https://github.com/YOUR-USERNAME)
+- GitHub: [@Khaledykhalil](https://github.com/Khaledykhalil)
+- Website: [measuremint.app](https://measuremint.app)
 - Email: khaledykhalil09@gmail.com
 
 ## 🙏 Acknowledgments
@@ -445,27 +369,33 @@ None currently. Please report any issues on GitHub!
 
 ## 🗺️ Roadmap
 
-### Completed ✅
-- [x] Linear distance measurements
-- [x] Area calculations with perimeter
-- [x] Polyline (multi-point path) measurements
-- [x] Angle measurements  
-- [x] Circle measurements (radius, diameter, circumference, area)
-- [x] Volume calculations
-- [x] Count tool with markers
-- [x] Cutout/subtract areas
-- [x] Slope/pitch tool (rise:run, percentage, degrees)
-- [x] Multiple scale regions for mixed-scale drawings
-- [x] Scale presets (20+ architectural scales)
-- [x] Feet-inches formatting for construction professionals
-- [x] Export measurements to CSV
-- [x] No image selection required
+### Current Version ✅
+- [x] Linear distance measurements with visual feedback
+- [x] Dual-axis calibration system (X, Y, or Both)
+- [x] Draw new calibration line or reuse existing lines
+- [x] Update calibration without redrawing
 - [x] 8 unit types with automatic conversion
+- [x] No image selection required
+- [x] Real-time measurement display
 
 ### Coming Soon 🚀
+- [ ] Area calculations with perimeter
+- [ ] Polyline (multi-point path) measurements
+- [ ] Angle measurements
+- [ ] Circle measurements (radius, diameter, circumference, area)
+- [ ] Volume calculations
+- [ ] Count tool with markers
+- [ ] Slope/pitch tool (rise:run, percentage, degrees)
+- [ ] Export measurements to CSV
+- [ ] Multiple scale regions for mixed-scale drawings
+- [ ] Scale presets (architectural scales)
 - [ ] Measurement templates and saved configurations
 - [ ] Custom unit definitions
 - [ ] Multi-language support
+
+### Future Enhancements 🔮
+- [ ] Cutout/subtract areas
+- [ ] Feet-inches formatting for construction professionals
 - [ ] Measurement annotations and notes
 - [ ] Batch measurement operations
 - [ ] Advanced reporting features
