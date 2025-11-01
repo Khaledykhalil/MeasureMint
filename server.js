@@ -69,6 +69,16 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Serve privacy policy
+app.get('/privacy-policy', (req, res) => {
+  res.sendFile(path.join(__dirname, 'privacy-policy.html'));
+});
+
+// Serve terms of service
+app.get('/terms-of-service', (req, res) => {
+  res.sendFile(path.join(__dirname, 'terms-of-service.html'));
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });

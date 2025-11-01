@@ -1,343 +1,683 @@
-# MeasureMint User Guide
+# MeasureMint User Guide# MeasureMint User Guide
 
-## Quick Start
 
-### No Image Selection Required!
-MeasureMint works anywhere on your Miro board - no need to select specific images or PDFs. Just calibrate and measure!
 
-### 3-Step Process
+## Quick Start## Quick Start
 
-1. **Calibrate Your Scale**
-   - **Option A: Draw a Line** - Click two points on a known distance, enter the actual measurement
-   - **Option B: Scale Preset** - Choose from 20+ architectural scales (1/4"=1', 1:100, etc.)
-   
-2. **Choose Your Tool**
-   - 9 professional measurement tools available
-   - Each tool designed for specific measurement needs
-   
-3. **Take Measurements**
+
+
+### No Image Selection Required!### No Image Selection Required!
+
+MeasureMint works anywhere on your Miro board - no need to select specific images or PDFs. Just calibrate and measure!MeasureMint works anywhere on your Miro board - no need to select specific images or PDFs. Just calibrate and measure!
+
+
+
+### 2-Step Process### 3-Step Process
+
+
+
+1. **Calibrate Your Scale**1. **Calibrate Your Scale**
+
+   - Draw a new calibration line on a known distance   - **Option A: Draw a Line** - Click two points on a known distance, enter the actual measurement
+
+   - Or reuse an existing line/connector on your board   - **Option B: Scale Preset** - Choose from 20+ architectural scales (1/4"=1', 1:100, etc.)
+
+   - Choose which axis to calibrate (Both, X-only, or Y-only)   
+
+   2. **Choose Your Tool**
+
+2. **Take Measurements**   - 9 professional measurement tools available
+
+   - Click two points to measure distance   - Each tool designed for specific measurement needs
+
+   - Measurements appear instantly with visual feedback   
+
+   - Switch units anytime without re-measuring3. **Take Measurements**
+
    - Click on the board to measure
-   - Measurements appear instantly with visual feedback
+
+## Calibration System   - Measurements appear instantly with visual feedback
+
    - Switch units anytime without re-measuring
 
+MeasureMint features a robust dual-axis calibration system designed to handle real-world scenarios like distorted or stretched images.
+
 ## Calibration Methods
+
+### Method 1: Draw New Calibration Line
 
 ### Method 1: Draw Calibration Line (Most Accurate)
 
 This is the recommended method for maximum accuracy:
 
-1. Click the **"Calibrate Scale"** button
-2. Click two points on your drawing that have a known distance
-   - Best practice: Use the longest dimension available
-   - Example: A dimension line showing "50'-0""
-3. Enter the actual distance in the popup
-4. Select your unit from the dropdown
-5. Click **"Set Calibration"**
+This is the recommended method for maximum accuracy:
 
-**Tips for Accurate Calibration:**
-- Use horizontal or vertical dimension lines when possible
-- Choose points that are far apart for better precision
+1. Click the **"Draw New Line"** button under Calibration
+
+2. Click two points on your drawing that have a known distance1. Click the **"Calibrate Scale"** button
+
+   - Best practice: Use the longest dimension available2. Click two points on your drawing that have a known distance
+
+   - Example: A dimension line showing "50'-0""   - Best practice: Use the longest dimension available
+
+3. In the calibration dialog:   - Example: A dimension line showing "50'-0""
+
+   - Enter the actual distance3. Enter the actual distance in the popup
+
+   - Select your unit from the dropdown (ft, in, m, cm, mm, yd, mi, km)4. Select your unit from the dropdown
+
+   - Choose which axis to calibrate:5. Click **"Set Calibration"**
+
+     - **Both**: For normal, undistorted drawings (default)
+
+     - **X-Axis Only**: If horizontal distances are stretched/compressed**Tips for Accurate Calibration:**
+
+     - **Y-Axis Only**: If vertical distances are stretched/compressed- Use horizontal or vertical dimension lines when possible
+
+4. Click **"Set Calibration"**- Choose points that are far apart for better precision
+
 - Zoom in when clicking calibration points
+
+**Tips for Accurate Calibration:**- Use dimension lines already marked on your drawing
+
+- Use horizontal or vertical dimension lines when possible- Verify your calibration with a test measurement
+
+- Choose points that are far apart for better precision
+
+- Zoom in when clicking calibration points### Method 2: Scale Presets (Fastest)
+
 - Use dimension lines already marked on your drawing
-- Verify your calibration with a test measurement
 
-### Method 2: Scale Presets (Fastest)
+- Verify your calibration with a test measurementPerfect when you know your drawing's scale:
 
-Perfect when you know your drawing's scale:
 
-1. Click the **"Calibrate Scale"** button
+
+### Method 2: Reuse Existing Line1. Click the **"Calibrate Scale"** button
+
 2. Click **"Use Scale Preset"**
-3. Choose from available scales:
 
-**Imperial Scales:**
-- 1/16" = 1'-0" (Very detailed)
-- 1/8" = 1'-0" (Detailed)
-- 1/4" = 1'-0" (Common architectural)
-- 3/8" = 1'-0"
-- 1/2" = 1'-0" (Large scale)
+Perfect when you have lines or connectors already on the board:3. Choose from available scales:
+
+
+
+1. Click the **"Reuse Existing Line"** button under Calibration**Imperial Scales:**
+
+2. Select any line or connector from your Miro board- 1/16" = 1'-0" (Very detailed)
+
+3. Enter the actual distance that line represents- 1/8" = 1'-0" (Detailed)
+
+4. Choose your unit- 1/4" = 1'-0" (Common architectural)
+
+5. Choose which axis to calibrate (Both, X, or Y)- 3/8" = 1'-0"
+
+6. Click **"Set Calibration"**- 1/2" = 1'-0" (Large scale)
+
 - 3/4" = 1'-0"
-- 1" = 1'-0" (Full size)
-- 1-1/2" = 1'-0"
-- 3" = 1'-0"
+
+**When to Use This Method:**- 1" = 1'-0" (Full size)
+
+- You have dimension lines already drawn- 1-1/2" = 1'-0"
+
+- You want to use an existing connector as a reference- 3" = 1'-0"
+
+- Quick calibration using board elements
 
 **Metric Scales:**
-- 1:500 (Site plans)
+
+### Method 3: Update Calibration- 1:500 (Site plans)
+
 - 1:200
-- 1:100 (Common floor plans)
+
+Made a mistake or need to adjust? No problem!- 1:100 (Common floor plans)
+
 - 1:50 (Detailed plans)
-- 1:20 (Very detailed)
-- 1:10
-- 1:5
-- 1:1 (Full size)
 
-4. Start measuring immediately!
+1. Click the **"Update Calibration"** button- 1:20 (Very detailed)
 
-**When to Use Scale Presets:**
-- Drawing scale is clearly labeled
-- Standard architectural or engineering drawing
-- Quick measurements needed
+2. Modify any of the following:- 1:10
+
+   - Change the reference distance value- 1:5
+
+   - Switch to a different unit- 1:1 (Full size)
+
+   - Change which axis is calibrated (Both → X-only → Y-only)
+
+3. Click **"Update"**4. Start measuring immediately!
+
+
+
+**When to Use This Method:****When to Use Scale Presets:**
+
+- You entered the wrong distance- Drawing scale is clearly labeled
+
+- You want to switch units- Standard architectural or engineering drawing
+
+- You need to adjust axis calibration without redrawing- Quick measurements needed
+
 - Multiple similar-scale drawings
+
+## Dual-Axis Calibration
 
 ## Measurement Tools
 
+For drawings with distortion or non-uniform scaling:
+
 ### 1. Linear Distance
 
-**Best For:** Room dimensions, wall lengths, distances between points
+### Why Dual-Axis?
 
-**How to Use:**
-1. Click **"Linear Distance"** tool
-2. Click your start point
-3. Click your end point
-4. Measurement appears with a line connecting the points
+Sometimes drawings are stretched, compressed, or scanned at different resolutions in different directions. Dual-axis calibration solves this by allowing you to set different calibrations for horizontal (X) and vertical (Y) measurements.**Best For:** Room dimensions, wall lengths, distances between points
 
-**Display Format:**
-- Decimal: "12.5 ft"
-- Feet-Inches: "12' 6""
-- Metric: "3.81 m"
 
-**Tips:**
-- Zoom in for precise point placement
-- Use for any straight-line measurement
-- Perfect for quick dimension checks
 
-### 2. Area & Perimeter
+### How to Use:**How to Use:**
 
-**Best For:** Room areas, lot sizes, bounded spaces
+1. **Calibrate X-Axis First:**1. Click **"Linear Distance"** tool
 
-**How to Use:**
+   - Draw or reuse a horizontal reference line2. Click your start point
+
+   - Enter its distance3. Click your end point
+
+   - Select "X-Axis Only"4. Measurement appears with a line connecting the points
+
+
+
+2. **Calibrate Y-Axis Second:****Display Format:**
+
+   - Draw or reuse a vertical reference line- Decimal: "12.5 ft"
+
+   - Enter its distance- Feet-Inches: "12' 6""
+
+   - Select "Y-Axis Only"- Metric: "3.81 m"
+
+
+
+3. **MeasureMint automatically:****Tips:**
+
+   - Detects measurement direction (horizontal, vertical, or diagonal)- Zoom in for precise point placement
+
+   - Applies appropriate scaling- Use for any straight-line measurement
+
+   - Calculates accurate distances even in distorted images- Perfect for quick dimension checks
+
+
+
+### When You Need Dual-Axis:### 2. Area & Perimeter
+
+- Scanned blueprints with uneven scaling
+
+- Photos of drawings taken at an angle**Best For:** Room areas, lot sizes, bounded spaces
+
+- Imported PDFs with distortion
+
+- Any drawing where horizontal and vertical dimensions don't match scale**How to Use:**
+
 1. Click **"Area"** tool
-2. Click points to outline your polygon
+
+## Linear Distance Measurement2. Click points to outline your polygon
+
    - Click around the perimeter of the space
-   - Points are connected automatically
+
+The core measurement tool for measuring straight-line distances between any two points.   - Points are connected automatically
+
 3. Click **"Complete Area"** when finished
-4. Get both area and perimeter measurements
 
-**Display Format:**
-- Area: "450 sq ft" or "41.8 sq m"
-- Perimeter: "85 ft" or "85' 0"" or "25.9 m"
+### How to Use:4. Get both area and perimeter measurements
 
-**Tips:**
-- Click in order around the perimeter
-- More points = more accurate for curved shapes
+
+
+1. Click the **"Measure Distance"** button under Measurements**Display Format:**
+
+2. Click your **start point** on the board- Area: "450 sq ft" or "41.8 sq m"
+
+3. Click your **end point**- Perimeter: "85 ft" or "85' 0"" or "25.9 m"
+
+4. The measurement appears with:
+
+   - A line connecting the two points**Tips:**
+
+   - The distance displayed with units- Click in order around the perimeter
+
+   - Options to change units or update the measurement- More points = more accurate for curved shapes
+
 - Great for calculating flooring, carpet, paint coverage
-- Use for property lot calculations
 
-### 3. Polyline Length
+### Display Format:- Use for property lot calculations
+
+- **Decimal**: "12.5 ft", "3.81 m"
+
+- **Current Units**: Displayed in whatever unit you select### 3. Polyline Length
+
+- **Visual Line**: Connecting line shows exactly what was measured
 
 **Best For:** Roads, paths, piping routes, non-straight measurements
 
-**How to Use:**
-1. Click **"Polyline"** tool
-2. Click points along the path
-   - Follow curves with multiple points
-   - Each click adds to the total length
+### Tips for Accurate Measurements:
+
+- **Zoom in** for precise point placement**How to Use:**
+
+- Use for any straight-line measurement1. Click **"Polyline"** tool
+
+- Click **corners** and **endpoints** carefully2. Click points along the path
+
+- Measure from **center** of dimension lines   - Follow curves with multiple points
+
+- Verify measurements match drawing dimensions   - Each click adds to the total length
+
 3. Click **"Complete Polyline"** when finished
-4. Get total path length
 
-**Display Format:**
-- "125.3 ft" or "125' 4"" or "38.2 m"
+### Common Use Cases:4. Get total path length
 
-**Tips:**
-- Use more points for curved paths
+- **Room dimensions**: Wall-to-wall measurements
+
+- **Door/window sizes**: Width and height**Display Format:**
+
+- **Furniture spacing**: Distance between objects- "125.3 ft" or "125' 4"" or "38.2 m"
+
+- **Site measurements**: Property lines, setbacks
+
+- **Technical drawings**: Component dimensions**Tips:**
+
+- **Diagonal measurements**: Cross-room diagonals for verification- Use more points for curved paths
+
 - Essential for utilities layout (plumbing, electrical)
-- Perfect for road and pathway measurements
+
+## Unit Conversion- Perfect for road and pathway measurements
+
 - Good for fence line calculations
+
+Switch between units at any time without re-measuring!
 
 ### 4. Count Tool
 
+### Available Units:
+
 **Best For:** Counting fixtures, columns, items, repeated elements
 
-**How to Use:**
-1. Click **"Count"** tool
-2. Click on each item you want to count
-   - Each click places a numbered marker
+**Imperial:**
+
+- Feet (ft)**How to Use:**
+
+- Inches (in)1. Click **"Count"** tool
+
+- Yards (yd)2. Click on each item you want to count
+
+- Miles (mi)   - Each click places a numbered marker
+
 3. Click **"Clear Counts"** to start over
-4. Total count displayed
 
-**Display Format:**
-- "Count: 24"
-- Numbered markers: 1, 2, 3...
+**Metric:**4. Total count displayed
 
-**Tips:**
+- Meters (m)
+
+- Centimeters (cm)**Display Format:**
+
+- Millimeters (mm)- "Count: 24"
+
+- Kilometers (km)- Numbered markers: 1, 2, 3...
+
+
+
+### How to Change Units:**Tips:**
+
 - Perfect for fixture schedules
-- Count windows, doors, columns
-- Track electrical outlets or lights
-- Useful for material quantity verification
+
+1. After taking a measurement, use the unit dropdown- Count windows, doors, columns
+
+2. Select your desired unit- Track electrical outlets or lights
+
+3. The measurement updates automatically- Useful for material quantity verification
+
+4. Your calibration remains valid
 
 ### 5. Volume Calculation
 
-**Best For:** Concrete pours, excavation, fill calculations, material volumes
+### Automatic Conversion:
 
-**How to Use:**
-1. Click **"Volume"** tool
+- All conversions are mathematically precise**Best For:** Concrete pours, excavation, fill calculations, material volumes
+
+- No rounding errors in intermediate calculations
+
+- Switch between imperial and metric freely**How to Use:**
+
+- Each measurement can use different units1. Click **"Volume"** tool
+
 2. Draw a polygon for the base area
-   - Click points to outline the base
+
+## Workflow Examples   - Click points to outline the base
+
 3. Click **"Complete Area"**
-4. Enter the height/depth in the popup
+
+### Example 1: Floor Plan Measurement4. Enter the height/depth in the popup
+
 5. Choose height unit
-6. Get volume calculation
 
-**Display Format:**
-- Volume: "1,250 cu ft" or "35.4 cu m"
-- Also shows: Base Area and Height
+**Scenario:** Measuring rooms in an architectural floor plan6. Get volume calculation
 
-**Tips:**
-- Use for concrete slab calculations
-- Calculate excavation volumes
-- Determine fill quantities
+
+
+1. **Calibrate:****Display Format:**
+
+   - Find a dimension line (e.g., "24'-6"")- Volume: "1,250 cu ft" or "35.4 cu m"
+
+   - Click "Draw New Line"- Also shows: Base Area and Height
+
+   - Click both ends of that dimension line
+
+   - Enter "24.5" or "24'6""**Tips:**
+
+   - Select "ft" as unit- Use for concrete slab calculations
+
+   - Choose "Both" axes- Calculate excavation volumes
+
+   - Click "Set Calibration"- Determine fill quantities
+
 - Perfect for material estimates
 
-### 6. Angle Measurement
+2. **Measure Rooms:**
 
-**Best For:** Roof slopes, intersections, corner angles, alignments
+   - Click "Measure Distance"### 6. Angle Measurement
+
+   - Click corner to corner for each room
+
+   - Measurements appear in feet**Best For:** Roof slopes, intersections, corner angles, alignments
+
+   - Switch to inches if needed for smaller details
 
 **How to Use:**
-1. Click **"Angle"** tool
-2. Click the vertex (corner point) first
-3. Click a point on the first line
+
+3. **Verify:**1. Click **"Angle"** tool
+
+   - Measure another dimension line to verify accuracy2. Click the vertex (corner point) first
+
+   - Should match the drawn dimensions3. Click a point on the first line
+
 4. Click a point on the second line
-5. Angle displayed in degrees
 
-**Display Format:**
+### Example 2: Distorted Image5. Angle displayed in degrees
+
+
+
+**Scenario:** Scanned blueprint with horizontal stretching**Display Format:**
+
 - "45.0°" (degrees)
-- Full 360° range supported
 
-**Tips:**
-- Click vertex first for accurate angles
-- Useful for property line intersections
-- Check roof pitch angles
-- Verify corner angles in layouts
+1. **Calibrate X-Axis (Horizontal):**- Full 360° range supported
+
+   - Find a horizontal dimension (e.g., "50'-0"")
+
+   - Click "Draw New Line"**Tips:**
+
+   - Click endpoints of horizontal reference- Click vertex first for accurate angles
+
+   - Enter "50"- Useful for property line intersections
+
+   - Select "ft"- Check roof pitch angles
+
+   - Choose "X-Axis Only"- Verify corner angles in layouts
+
+   - Click "Set Calibration"
 
 ### 7. Circle Measurements
 
-**Best For:** Circular columns, roundabouts, circular features
+2. **Calibrate Y-Axis (Vertical):**
 
-**How to Use:**
-1. Click **"Circle"** tool
-2. Click the center point
-3. Click any point on the circle's edge
-4. Get comprehensive circle measurements
+   - Find a vertical dimension (e.g., "30'-0"")**Best For:** Circular columns, roundabouts, circular features
 
-**Display Format:**
-- Radius: "10 ft" or "10' 0""
-- Diameter: "20 ft" or "20' 0""
-- Circumference: "62.8 ft"
+   - Click "Draw New Line" again
+
+   - Click endpoints of vertical reference**How to Use:**
+
+   - Enter "30"1. Click **"Circle"** tool
+
+   - Select "ft"2. Click the center point
+
+   - Choose "Y-Axis Only"3. Click any point on the circle's edge
+
+   - Click "Set Calibration"4. Get comprehensive circle measurements
+
+
+
+3. **Measure Anywhere:****Display Format:**
+
+   - Take measurements in any direction- Radius: "10 ft" or "10' 0""
+
+   - MeasureMint automatically applies correct scaling- Diameter: "20 ft" or "20' 0""
+
+   - Horizontal, vertical, and diagonal measurements all accurate- Circumference: "62.8 ft"
+
 - Area: "314.2 sq ft"
 
+### Example 3: Using Existing Lines
+
 **Tips:**
-- Perfect for circular columns
+
+**Scenario:** Board already has lines you want to use as reference- Perfect for circular columns
+
 - Calculate circular patio areas
-- Measure roundabouts or turnarounds
-- Get all measurements at once
 
-### 8. Cutout/Subtract Areas ⭐ Advanced
+1. **Select Reference:**- Measure roundabouts or turnarounds
 
-**Best For:** Net floor areas (subtracting doors/windows), wall areas with openings, net paint areas
+   - Click "Reuse Existing Line"- Get all measurements at once
 
-**How to Use:**
-1. Click **"Cutout Areas"** tool
-2. Draw the main polygon (gross area)
-   - Click points around the outer boundary
+   - Click any line or connector on the board
+
+   - This could be a dimension line you drew, or any connector### 8. Cutout/Subtract Areas ⭐ Advanced
+
+
+
+2. **Set Distance:****Best For:** Net floor areas (subtracting doors/windows), wall areas with openings, net paint areas
+
+   - Enter what distance that line represents
+
+   - Example: If it's a 20-foot wall, enter "20"**How to Use:**
+
+   - Select "ft"1. Click **"Cutout Areas"** tool
+
+   - Choose axis (usually "Both")2. Draw the main polygon (gross area)
+
+   - Click "Set Calibration"   - Click points around the outer boundary
+
 3. Click **"Complete Main Area"**
-4. Click **"Add Cutout"** for each opening
-5. Draw each cutout polygon
-   - Windows, doors, openings, etc.
+
+3. **Start Measuring:**4. Click **"Add Cutout"** for each opening
+
+   - Your existing line is now the calibration reference5. Draw each cutout polygon
+
+   - No need to draw anything new   - Windows, doors, openings, etc.
+
 6. Click **"Complete Cutout"** for each
-7. Get comprehensive calculation
 
-**Display Format:**
-- Gross Area: "1,200 sq ft"
-- Total Cutouts: "150 sq ft"
+## Troubleshooting7. Get comprehensive calculation
+
+
+
+### "Please calibrate first"**Display Format:**
+
+**Problem:** Trying to measure before calibration is set- Gross Area: "1,200 sq ft"
+
+**Solution:** Complete one of the three calibration methods above- Total Cutouts: "150 sq ft"
+
 - Net Area: "1,050 sq ft"
-- Formula: Gross - Cutouts = Net
 
-**Real-World Example:**
-- Room with windows and doors:
-  - Draw room perimeter (gross area: 400 sq ft)
-  - Add cutout for each window (3 windows: 45 sq ft total)
-  - Add cutout for each door (2 doors: 35 sq ft total)
+### Measurements Don't Match Drawing- Formula: Gross - Cutouts = Net
+
+**Problem:** Calibration may be incorrect or drawing is distorted
+
+**Solutions:****Real-World Example:**
+
+- Verify you entered the correct reference distance- Room with windows and doors:
+
+- Check units (feet vs inches, meters vs centimeters)  - Draw room perimeter (gross area: 400 sq ft)
+
+- For distorted images, use dual-axis calibration  - Add cutout for each window (3 windows: 45 sq ft total)
+
+- Try calibrating with a longer reference distance  - Add cutout for each door (2 doors: 35 sq ft total)
+
   - Net wall area: 320 sq ft (for painting, wallpaper, etc.)
 
-**Tips:**
-- Essential for material calculations
+### Can't Click Points Accurately
+
+**Problem:** Difficult to select precise points**Tips:**
+
+**Solution:** Zoom in on the area before clicking- Essential for material calculations
+
 - Calculate paint/wallpaper needs accurately
-- Determine actual usable floor area
-- Account for all openings
 
-### 9. Slope/Pitch Tool ⭐ Advanced
+### Calibration Line Disappeared- Determine actual usable floor area
 
-**Best For:** Roof pitches, ADA ramps, road grades, drainage slopes
+**Problem:** Calibration line is no longer visible- Account for all openings
 
-**How to Use:**
-1. Click **"Slope/Pitch"** tool
-2. Click the start point (e.g., bottom of slope)
+**Solution:** 
+
+- Your calibration is still active### 9. Slope/Pitch Tool ⭐ Advanced
+
+- Use "Draw New Line" to create a new reference if needed
+
+- Use "Update Calibration" to modify without redrawing**Best For:** Roof pitches, ADA ramps, road grades, drainage slopes
+
+
+
+### Wrong Axis Calibrated**How to Use:**
+
+**Problem:** Calibrated wrong axis (X instead of Y, or Both instead of X-only)1. Click **"Slope/Pitch"** tool
+
+**Solution:** Click "Update Calibration" and select the correct axis option2. Click the start point (e.g., bottom of slope)
+
 3. Click the end point (e.g., top of slope)
-4. Enter the height change (rise) in the popup
-5. Choose height unit
-6. Get three slope formats
 
-**Display Format:**
+### Units Are Wrong4. Enter the height change (rise) in the popup
+
+**Problem:** Measurement showing wrong units5. Choose height unit
+
+**Solution:** 6. Get three slope formats
+
+- Use the unit dropdown to change displayed unit
+
+- Or click "Update Calibration" to change the calibration unit**Display Format:**
+
 - Rise:Run: "4:12" (roofing standard)
-- Percentage: "33.3%" (roads/ADA)
+
+## Best Practices- Percentage: "33.3%" (roads/ADA)
+
 - Degrees: "18.4°" (general use)
 
-**Real-World Examples:**
+### For Accuracy:
 
-**Roof Pitch:**
-- Horizontal run: 30 feet
-- Height change: 10 feet
+1. **Use longest available reference** - Longer calibration distances = higher accuracy**Real-World Examples:**
+
+2. **Zoom in when clicking** - Precise point placement is critical
+
+3. **Use dimension lines** - Already-marked dimensions are ideal calibration references**Roof Pitch:**
+
+4. **Verify with test measurement** - Measure a known dimension after calibrating- Horizontal run: 30 feet
+
+5. **Calibrate each axis separately** if drawing appears distorted- Height change: 10 feet
+
 - Result: 4:12 pitch (common residential)
 
-**ADA Ramp:**
-- Horizontal run: 30 feet
-- Height change: 2.5 feet
-- Result: 8.33% slope (meets 1:12 = 8.33% max requirement)
+### For Efficiency:
 
-**Road Grade:**
-- Horizontal distance: 1,000 feet
-- Elevation change: 50 feet
-- Result: 5% grade
+1. **Reuse existing lines** - Faster than drawing new calibration lines**ADA Ramp:**
+
+2. **Keep measurements on board** - Visual reference for future work- Horizontal run: 30 feet
+
+3. **Use appropriate units** - Match your industry standards (ft for architecture, mm for engineering)- Height change: 2.5 feet
+
+4. **Update rather than recalibrate** - Faster to adjust values than start over- Result: 8.33% slope (meets 1:12 = 8.33% max requirement)
+
+
+
+### For Complex Drawings:**Road Grade:**
+
+1. **Start with overall calibration** - Use a large dimension for initial calibration- Horizontal distance: 1,000 feet
+
+2. **Test in multiple locations** - Verify calibration works across the entire drawing- Elevation change: 50 feet
+
+3. **Use dual-axis if needed** - Don't fight distorted images- Result: 5% grade
+
+4. **Document your calibration** - Note which reference you used
 
 **Tips:**
-- Use Rise:Run for roofing (4:12, 6:12, etc.)
+
+## Keyboard Shortcuts- Use Rise:Run for roofing (4:12, 6:12, etc.)
+
 - Use Percentage for ADA compliance (max 8.33%)
-- Use Degrees for general slope reference
+
+Currently, all interactions are mouse/touch-based. Keyboard shortcuts may be added in future versions.- Use Degrees for general slope reference
+
 - All three formats shown simultaneously
+
+## Getting Help
 
 ## Advanced Features
 
-### Multiple Scale Regions
+### Resources:
 
-**When to Use:**
-- Drawings with detail callouts at different scales
+- **README.md**: Installation and setup instructions### Multiple Scale Regions
+
+- **DEPLOYMENT.md**: Production deployment guide
+
+- **TECHNICAL.md**: Technical architecture details**When to Use:**
+
+- **GitHub Issues**: Report bugs or request features- Drawings with detail callouts at different scales
+
 - Site plans with enlarged area details
-- Mixed-scale construction documents
-- Floor plans with zoomed sections
 
-**How to Set Up:**
+### Support:- Mixed-scale construction documents
+
+- **Email**: khaledykhalil09@gmail.com- Floor plans with zoomed sections
+
+- **GitHub**: https://github.com/Khaledykhalil/MeasureMint
+
+- **Issues**: https://github.com/Khaledykhalil/MeasureMint/issues**How to Set Up:**
+
 1. Click **"Add Scale Region"**
-2. Draw a polygon around the first scale area
+
+## Future Features2. Draw a polygon around the first scale area
+
    - Click points to outline the region boundary
-3. Click **"Complete Region"**
+
+The following features are planned for future releases (available now in the `full-featured-ui` branch):3. Click **"Complete Region"**
+
 4. Calibrate the scale for this region
-   - Either draw calibration line or use preset
-5. Repeat for each different scale area
 
-**How It Works:**
-- MeasureMint automatically detects which region you're measuring in
-- Applies the correct scale based on measurement location
-- No need to manually switch scales
-- Measure freely across the entire drawing
+- Area and perimeter calculations   - Either draw calibration line or use preset
 
-**Example:**
-- Main floor plan at 1/4" = 1'-0"
-- Kitchen detail at 1/2" = 1'-0"
+- Multi-point polyline measurements5. Repeat for each different scale area
+
+- Angle measurements
+
+- Circle measurements (radius, diameter, circumference, area)**How It Works:**
+
+- Volume calculations- MeasureMint automatically detects which region you're measuring in
+
+- Count tool with markers- Applies the correct scale based on measurement location
+
+- Slope/pitch calculations- No need to manually switch scales
+
+- CSV export- Measure freely across the entire drawing
+
+- Scale presets
+
+- Multiple scale regions**Example:**
+
+- Measurement annotations- Main floor plan at 1/4" = 1'-0"
+
+- Batch operations- Kitchen detail at 1/2" = 1'-0"
+
 - Define two scale regions
-- Measure anywhere - scale applied automatically
 
-### Feet-Inches Display Format
+---- Measure anywhere - scale applied automatically
 
-**Automatic for Construction Professionals:**
+
+
+**MeasureMint** - Simple, accurate measurements on Miro boards.### Feet-Inches Display Format
+
+
+
+Last updated: November 1, 2025**Automatic for Construction Professionals:**
+
 
 When measuring in feet, MeasureMint automatically displays results in feet-inches format rounded to the nearest inch:
 
