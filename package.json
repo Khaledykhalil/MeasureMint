@@ -9,7 +9,11 @@
     "dev": "next dev -p 3000",
     "dev:ngrok": "ngrok http 3000",
     "dev:all": "concurrently -k \"npm:dev\" \"npm:dev:ngrok\"",
-    "manifest:update": "node scripts/update-manifest.js"
+    "manifest:update": "node scripts/update-manifest.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "test:ci": "jest --ci --coverage --maxWorkers=2"
   },
   "dependencies": {
     "@mirohq/miro-api": "^2.0.0",
@@ -22,7 +26,12 @@
     "react-icons": "^5.5.0"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "concurrently": "^8.2.2",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
     "js-yaml": "^4.1.0"
   }
 }

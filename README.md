@@ -249,6 +249,7 @@ Change units without re-measuring:
 
 ### Project Structure
 
+```
 measuremint/
 ├── LICENSE                 # License 
 ├── index.html              # Main app interface
@@ -257,12 +258,82 @@ measuremint/
 ├── privacy-policy.html    # Privacy policy
 ├── terms-of-service.html  # Terms of service
 ├── README.md             # This file
-└── .gitignore            # Git exclusions
+├── jest.config.js        # Jest configuration
+├── jest.setup.js         # Test setup
+├── .gitignore            # Git exclusions
+├── src/
+│   ├── app/
+│   │   └── panel/
+│   │       └── page.jsx  # Main panel component
+│   └── utils/
+│       ├── measurements.js           # Utility functions
+│       ├── performance.js            # Performance monitoring
+│       └── __tests__/
+│           └── measurements.test.js  # Unit tests
+└── docs/
+    ├── USER_GUIDE.md     # User documentation
+    ├── TECHNICAL.md      # Technical documentation
+    ├── PERFORMANCE.md    # Performance guide
+    └── DEPLOYMENT.md     # Deployment guide
+```
 
 ### Available Scripts
 
 - `npm start` - Start development server
 - `npm run dev` - Start development server (alias)
+- `npm run build` - Build for production
+- `npm test` - Run test suite
+- `npm run test:watch` - Run tests in watch mode
+- `npm run test:coverage` - Run tests with coverage report
+- `npm run test:ci` - Run tests in CI mode
+
+### Testing
+
+MeasureMint includes comprehensive unit tests for all utility functions:
+
+```bash
+# Run all tests
+npm test
+
+# Run tests in watch mode (during development)
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+```
+
+**Test Coverage:**
+- Unit conversions (ft, in, m, cm, mm, yd, mi, km)
+- Distance calculations (pixel distance, actual distance, dual-axis)
+- Measurement formatting (decimal, feet-inches)
+- Input parsing (feet-inches format)
+- Calibration validation
+- Angle calculations
+- Orientation detection
+
+### Performance
+
+Performance utilities and monitoring:
+
+```jsx
+import { measureAsync, debounce, throttle, memoize } from '@/utils/performance';
+
+// Measure operation performance
+await measureAsync(async () => {
+  // Your async operation
+}, 'Operation Label');
+
+// Debounce user input
+const debouncedHandler = debounce(handleInput, 300);
+
+// Throttle frequent events
+const throttledHandler = throttle(handleScroll, 100);
+
+// Memoize expensive calculations
+const memoizedCalc = memoize(expensiveFunction);
+```
+
+See [docs/PERFORMANCE.md](docs/PERFORMANCE.md) for detailed optimization guide.
 
 ## 🌐 Deployment
 
