@@ -542,6 +542,155 @@ export default function PanelPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [mode, calibrationLine]);
 
+  /**
+   * Real-time Line Movement Monitor
+   * 
+   * This useEffect hook continuously watches measurement lines on the Miro board
+   * and automatically recalculates their dimensions when they are moved or modified.
+   * 
+   * Features:
+   * - Monitors all measurement lines every 500ms
+   * - Detects position changes in real-time
+   * - Recalculates distances based on current calibration
+   * - Updates line captions with new measurements
+   * - Supports both single and dual-axis calibration
+   * - Only updates when changes exceed 0.001 units (prevents flickering)
+   * 
+   * How it works:
+   * 1. For each measurement with a lineId, fetch the current line from Miro
+   * 2. Calculate the current pixel distance between start and end points
+   * 3. Determine if line is horizontal or vertical
+   * 4. Apply appropriate calibration (dual-axis or single)
+   * 5. Convert to actual distance and update all unit conversions
+   * 6. Update the line's caption text with new measurement
+   * 7. Update the measurements state with new values
+   * 
+   * Performance optimizations:
+   * - Uses async/await for non-blocking operations
+   * - Only updates state when measurements actually change
+   * - Cleans up timeout on component unmount
+   * - Processes all lines in parallel with Promise.all
+   */
+  // Watch for line movements and update measurements dynamically
+  useEffect(() => {
+    if (!window.miro || !calibration || measurements.length === 0) {
+      return;
+    }
+
+    let isActive = true;
+    let timeoutId = null;
+
+    // Function to recalculate a single measurement line
+    const recalculateLine = async (measurement) => {
+      if (!measurement.lineId) return measurement;
+
+      try {
+        const line = await window.miro.board.getById(measurement.lineId);
+        
+        if (!line || line.type !== 'connector') {
+          return measurement; // Line deleted or invalid
+        }
+
+        // Calculate current pixel distance
+        const dx = line.end.x - line.start.x;
+        const dy = line.end.y - line.start.y;
+        const pixelDistance = Math.sqrt(dx * dx + dy * dy);
+
+        // Determine orientation
+        const orientation = Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical';
+        
+        // Calculate actual distance using appropriate calibration
+        let actualDistance;
+        if (calibration.type === 'dual' && calibration[orientation]) {
+          actualDistance = pixelDistance / calibration[orientation].pixelsPerUnit;
+        } else if (calibration.pixelsPerUnit) {
+          actualDistance = pixelDistance / calibration.pixelsPerUnit;
+        } else {
+          return measurement;
+        }
+
+        // Only update if change is significant (> 0.001 units)
+        if (Math.abs(actualDistance - measurement.distance) < 0.001) {
+          return measurement;
+        }
+
+        // Import utility functions dynamically
+        const { convertUnits, formatMeasurement } = await import('../../utils/measurements.js');
+
+        // Recalculate conversions
+        const conversions = {};
+        const units = ['ft', 'in', 'm', 'cm', 'mm', 'yd', 'km', 'mi'];
+        for (const unit of units) {
+          conversions[unit] = convertUnits(actualDistance, calibration.unit, unit);
+        }
+
+        // Format the measurement text
+        const measurementText = formatMeasurement(actualDistance, calibration.unit, showFeetInches);
+        
+        // Update the line caption
+        await window.miro.board.update({
+          id: line.id,
+          captions: [{
+            content: measurementText,
+            position: 0.5,
+            textAlignVertical: 'middle'
+          }]
+        });
+
+        // Return updated measurement
+        return {
+          ...measurement,
+          distance: actualDistance,
+          conversions: conversions,
+          lastUpdated: Date.now()
+        };
+
+      } catch (error) {
+        console.error('Error recalculating line:', measurement.lineId, error);
+        return measurement;
+      }
+    };
+
+    // Monitor all measurement lines periodically
+    const monitorLines = async () => {
+      if (!isActive) return;
+
+      try {
+        const updatedMeasurements = await Promise.all(
+          measurements.map(m => recalculateLine(m))
+        );
+
+        // Check if any measurements changed
+        const hasChanges = updatedMeasurements.some((updated, idx) => 
+          updated.lastUpdated && updated.lastUpdated !== measurements[idx].lastUpdated
+        );
+
+        if (hasChanges && isActive) {
+          setMeasurements(updatedMeasurements);
+        }
+
+      } catch (error) {
+        console.error('Error monitoring lines:', error);
+      }
+
+      // Continue monitoring while component is mounted
+      if (isActive) {
+        timeoutId = setTimeout(monitorLines, 500); // Check every 500ms
+      }
+    };
+
+    // Start monitoring
+    monitorLines();
+
+    // Cleanup function
+    return () => {
+      isActive = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+    };
+  }, [measurements, calibration, showFeetInches]);
+
   // Note: Miro SDK v2 doesn't support board.ui.on('click')
   // Instead, we use helper functions that prompt users to click and select positions
   // See the helper functions below for each measurement mode
