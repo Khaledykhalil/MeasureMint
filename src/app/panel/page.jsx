@@ -7,7 +7,8 @@ import {
   MdRefresh, 
   MdBarChart, 
   MdEdit,
-  MdSave
+  MdSave,
+  MdContentCopy
 } from 'react-icons/md';
 import { 
   TbRuler, 
@@ -21,7 +22,10 @@ import {
   TbClipboardList,
   TbLayersDifference,
   TbStairs,
-  TbLayoutGridAdd
+  TbLayoutGridAdd,
+  TbSquare,
+  TbVectorBezier2,
+  TbCube
 } from 'react-icons/tb';
 
 const CONVERSIONS = {
@@ -106,18 +110,19 @@ function formatFeetInches(valueInFeet) {
   }
 }
 
-// Function to format measurement based on unit type
-function formatMeasurement(value, unit, decimals = 2) {
-  if (unit === 'ft') {
+// Function to format measurement based on unit type and format preference
+function formatMeasurement(value, unit, showFeetInches = true, decimals = 2) {
+  if (unit === 'ft' && showFeetInches) {
     return formatFeetInches(value);
   }
   return formatNumber(value, decimals);
 }
 
-const styles = {
+
+const getStyles = (darkMode) => ({
   body: {
     fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
-    background: 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
+    background: darkMode ? 'linear-gradient(135deg, #1c1c1e 0%, #2c2c2e 100%)' : 'linear-gradient(135deg, #f5f7fa 0%, #e8ecf1 100%)',
     minHeight: '100vh',
     maxHeight: '100vh',
     overflow: 'auto',
@@ -128,11 +133,11 @@ const styles = {
     margin: '0 auto'
   },
   header: {
-    background: 'white',
+    background: darkMode ? '#2c2c2e' : 'white',
     borderRadius: '12px',
     padding: '12px 16px',
     marginBottom: '12px',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+    boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.4)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between'
@@ -161,12 +166,12 @@ const styles = {
   brandName: {
     fontSize: '16px',
     fontWeight: '700',
-    color: '#1a202c',
+    color: darkMode ? '#ffffff' : '#1a202c',
     letterSpacing: '-0.5px'
   },
   brandTagline: {
     fontSize: '10px',
-    color: '#718096',
+    color: darkMode ? '#8e8e93' : '#718096',
     fontWeight: '500',
     textTransform: 'uppercase',
     letterSpacing: '0.5px'
@@ -174,7 +179,7 @@ const styles = {
   unitToggle: {
     display: 'flex',
     gap: '4px',
-    background: '#f7fafc',
+    background: darkMode ? '#1c1c1e' : '#f7fafc',
     padding: '3px',
     borderRadius: '8px'
   },
@@ -186,30 +191,30 @@ const styles = {
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    color: '#4a5568',
+    color: darkMode ? '#aeaeb2' : '#4a5568',
     background: 'transparent'
   },
   unitBtnActive: {
-    background: 'white',
+    background: darkMode ? '#2c2c2e' : 'white',
     color: '#10bb82',
-    boxShadow: '0 2px 4px rgba(0, 0, 0, 0.08)'
+    boxShadow: darkMode ? '0 2px 4px rgba(0, 0, 0, 0.3)' : '0 2px 4px rgba(0, 0, 0, 0.08)'
   },
   panel: {
-    background: 'white',
+    background: darkMode ? '#2c2c2e' : 'white',
     borderRadius: '12px',
     padding: '16px',
-    boxShadow: '0 1px 3px rgba(0, 0, 0, 0.05)',
+    boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.4)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
     marginBottom: '12px'
   },
   panelTitle: {
     fontSize: '12px',
     fontWeight: '600',
-    color: '#718096',
+    color: darkMode ? '#8e8e93' : '#718096',
     textTransform: 'uppercase',
     letterSpacing: '0.5px',
     marginBottom: '12px',
     paddingBottom: '8px',
-    borderBottom: '2px solid #e2e8f0'
+    borderBottom: darkMode ? '2px solid #3a3a3c' : '2px solid #e2e8f0'
   },
   toolsGrid: {
     display: 'grid',
@@ -217,8 +222,8 @@ const styles = {
     gap: '8px'
   },
   toolCard: {
-    background: '#f8fafc',
-    border: '2px solid #e2e8f0',
+    background: darkMode ? '#1c1c1e' : '#f8fafc',
+    border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
     borderRadius: '8px',
     padding: '10px',
     cursor: 'pointer',
@@ -227,7 +232,8 @@ const styles = {
     alignItems: 'center',
     gap: '8px',
     position: 'relative',
-    overflow: 'hidden'
+    overflow: 'hidden',
+    outline: 'none'
   },
   toolCardHover: {
     borderColor: '#10bb82',
@@ -263,7 +269,7 @@ const styles = {
   toolName: {
     fontSize: '13px',
     fontWeight: '600',
-    color: '#1a202c',
+    color: darkMode ? '#ffffff' : '#1a202c',
     marginBottom: '2px',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
@@ -271,18 +277,18 @@ const styles = {
   },
   toolDescription: {
     fontSize: '11px',
-    color: '#718096',
+    color: darkMode ? '#8e8e93' : '#718096',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis'
   },
   emptyCard: {
-    background: '#fafafa',
-    border: '2px dashed #cbd5e0',
+    background: darkMode ? '#1c1c1e' : '#fafafa',
+    border: darkMode ? '2px dashed #3a3a3c' : '2px dashed #cbd5e0',
     borderRadius: '12px',
     padding: '32px',
     textAlign: 'center',
-    color: '#a0aec0',
+    color: darkMode ? '#636366' : '#a0aec0',
     cursor: 'default'
   },
   emptyIcon: {
@@ -290,7 +296,7 @@ const styles = {
     marginBottom: '8px'
   },
   measurementDisplay: {
-    background: 'white',
+    background: darkMode ? '#1c1c1e' : 'white',
     border: '2px solid #10bb82',
     borderRadius: '12px',
     padding: '24px',
@@ -306,7 +312,7 @@ const styles = {
   },
   measurementUnit: {
     fontSize: '16px',
-    color: '#718096',
+    color: darkMode ? '#8e8e93' : '#718096',
     textTransform: 'uppercase',
     letterSpacing: '1px',
     fontWeight: '600'
@@ -324,22 +330,22 @@ const styles = {
     zIndex: 1000
   },
   modalContent: {
-    background: 'white',
+    background: darkMode ? '#2c2c2e' : 'white',
     borderRadius: '16px',
     padding: '32px',
     maxWidth: '500px',
     width: '90%',
     maxHeight: '90vh',
     overflowY: 'auto',
-    boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+    boxShadow: darkMode ? '0 20px 60px rgba(0,0,0,0.6)' : '0 20px 60px rgba(0,0,0,0.3)'
   },
   modalTitle: {
     fontSize: '24px',
     fontWeight: '700',
-    color: '#1a202c',
+    color: darkMode ? '#ffffff' : '#1a202c',
     marginBottom: '24px',
     paddingBottom: '16px',
-    borderBottom: '2px solid #e2e8f0'
+    borderBottom: darkMode ? '2px solid #3a3a3c' : '2px solid #e2e8f0'
   },
   formGroup: {
     marginBottom: '24px'
@@ -349,19 +355,21 @@ const styles = {
     fontSize: '14px',
     fontWeight: '600',
     marginBottom: '8px',
-    color: '#4a5568',
+    color: darkMode ? '#aeaeb2' : '#4a5568',
     textTransform: 'uppercase',
     letterSpacing: '0.5px'
   },
   input: {
     width: '100%',
     padding: '12px 16px',
-    border: '2px solid #e2e8f0',
+    border: darkMode ? '2px solid #3a3a3c' : '2px solid #e2e8f0',
     borderRadius: '10px',
     fontSize: '16px',
     boxSizing: 'border-box',
     fontFamily: 'monospace',
-    transition: 'border-color 0.2s ease'
+    transition: 'border-color 0.2s ease',
+    background: darkMode ? '#1c1c1e' : 'white',
+    color: darkMode ? '#ffffff' : '#1a202c'
   },
   unitGrid: {
     display: 'grid',
@@ -370,15 +378,15 @@ const styles = {
   },
   unitGridBtn: {
     padding: '12px 16px',
-    border: '2px solid #e2e8f0',
+    border: darkMode ? '2px solid #3a3a3c' : '2px solid #e2e8f0',
     borderRadius: '10px',
-    background: 'white',
+    background: darkMode ? '#1c1c1e' : 'white',
     fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s',
     textAlign: 'center',
-    color: '#4a5568'
+    color: darkMode ? '#aeaeb2' : '#4a5568'
   },
   unitGridBtnActive: {
     background: '#10bb82',
@@ -406,19 +414,19 @@ const styles = {
   btnSecondary: {
     flex: 1,
     padding: '10px 16px',
-    border: '2px solid #e2e8f0',
+    border: darkMode ? '2px solid #3a3a3c' : '2px solid #e2e8f0',
     borderRadius: '8px',
     fontSize: '13px',
     fontWeight: '600',
     cursor: 'pointer',
     transition: 'all 0.2s ease',
-    background: 'white',
-    color: '#4a5568'
+    background: darkMode ? '#1c1c1e' : 'white',
+    color: darkMode ? '#aeaeb2' : '#4a5568'
   },
   historyItem: {
     padding: '16px',
-    background: '#f8fafc',
-    border: '2px solid #e2e8f0',
+    background: darkMode ? '#1c1c1e' : '#f8fafc',
+    border: darkMode ? '2px solid #3a3a3c' : '2px solid #e2e8f0',
     borderRadius: '10px',
     marginBottom: '12px',
     display: 'flex',
@@ -426,7 +434,7 @@ const styles = {
     alignItems: 'center'
   },
   historyLabel: {
-    color: '#718096',
+    color: darkMode ? '#8e8e93' : '#718096',
     fontSize: '14px',
     fontWeight: '500'
   },
@@ -436,7 +444,7 @@ const styles = {
     fontFamily: 'monospace',
     fontSize: '16px'
   }
-};
+});
 
 export default function PanelPage() {
   const [mode, setMode] = useState('none');
@@ -457,6 +465,10 @@ export default function PanelPage() {
   const [hoveredCard, setHoveredCard] = useState(null);
   const [calibrationLine, setCalibrationLine] = useState(null);
   const [isFirstMeasurement, setIsFirstMeasurement] = useState(true);
+  const showFeetInches = true; // Always show feet-inches format for feet measurements
+  
+  // UI state for collapsible sections
+  const [expandedSection, setExpandedSection] = useState('calibration'); // 'calibration', 'linear', 'area', or null
   
   // Area measurement state
   const [areaPoints, setAreaPoints] = useState([]);
@@ -506,6 +518,58 @@ export default function PanelPage() {
   const [activeScaleRegion, setActiveScaleRegion] = useState(null); // Currently selected region for measurements
   const [tempRegionCalibration, setTempRegionCalibration] = useState(null);
 
+  // Dark mode state
+  const [darkMode, setDarkMode] = useState(false);
+
+  // Custom modal state (replaces browser alerts)
+  const [customModal, setCustomModal] = useState({
+    show: false,
+    title: '',
+    message: '',
+    type: 'alert', // 'alert' or 'confirm'
+    onConfirm: null,
+    onCancel: null
+  });
+
+  // Custom modal helpers
+  const showAlert = (message, title = 'MeasureMint') => {
+    return new Promise((resolve) => {
+      setCustomModal({
+        show: true,
+        title,
+        message,
+        type: 'alert',
+        onConfirm: () => {
+          setCustomModal({ ...customModal, show: false });
+          resolve();
+        },
+        onCancel: null
+      });
+    });
+  };
+
+  const showConfirm = (message, title = 'MeasureMint') => {
+    return new Promise((resolve) => {
+      setCustomModal({
+        show: true,
+        title,
+        message,
+        type: 'confirm',
+        onConfirm: () => {
+          setCustomModal({ ...customModal, show: false });
+          resolve(true);
+        },
+        onCancel: () => {
+          setCustomModal({ ...customModal, show: false });
+          resolve(false);
+        }
+      });
+    });
+  };
+
+  // Generate styles based on dark mode
+  const styles = getStyles(darkMode);
+
   // Add escape key listener to exit measurement mode
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -523,44 +587,9 @@ export default function PanelPage() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [mode, calibrationLine]);
 
-  // Set up board click listener for multi-point measurement tools
-  useEffect(() => {
-    if (!window.miro) return;
-
-    const handleBoardClick = async (event) => {
-      // Get click position
-      const x = event.x;
-      const y = event.y;
-
-      // Route to appropriate handler based on current mode
-      if (mode === 'area') {
-        await addAreaPoint(x, y);
-      } else if (mode === 'polyline') {
-        await addPolylinePoint(x, y);
-      } else if (mode === 'angle') {
-        await addAnglePoint(x, y);
-      } else if (mode === 'circle') {
-        await addCirclePoint(x, y);
-      } else if (mode === 'cutout') {
-        await addCutoutPoint(x, y);
-      } else if (mode === 'slope') {
-        await addSlopePoint(x, y);
-      } else if (mode === 'scale-region') {
-        await addRegionPoint(x, y);
-      }
-    };
-
-    // Only set up listener for modes that need board clicks
-    const clickModes = ['area', 'polyline', 'angle', 'circle', 'cutout', 'slope', 'scale-region'];
-    if (clickModes.includes(mode)) {
-      window.miro.board.ui.on('click', handleBoardClick);
-      
-      return () => {
-        // Cleanup: remove the event listener when mode changes or component unmounts
-        window.miro.board.ui.off('click', handleBoardClick);
-      };
-    }
-  }, [mode, areaPoints, polylinePoints, anglePoints, circleCenter, cutoutMainPoints, cutoutPolygons, cutoutMode, slopePoints, currentRegionPoints]);
+  // Note: Miro SDK v2 doesn't support board.ui.on('click')
+  // Instead, we use helper functions that prompt users to click and select positions
+  // See the helper functions below for each measurement mode
 
   const selectImage = async () => {
     try {
@@ -583,20 +612,143 @@ export default function PanelPage() {
 
   const applyScalePreset = async (scale) => {
     // For architectural scales, we can set up calibration with minimal input
-    // User draws one reference line, then we apply the scale preset
+    // User can either draw a reference line OR directly enter a known dimension
     
     setShowScalePresetsModal(false);
     
-    // Ask user if they want to draw a reference line or enter measurements directly
-    const useReferenceLine = confirm(
+    // Ask user to choose calibration method
+    const method = await showConfirm(
       `Selected: ${scale.name} (${scale.description})\n\n` +
       `Choose calibration method:\n\n` +
-      `OK = Draw a reference line on your drawing\n` +
-      `Cancel = Enter pixel distance manually\n\n` +
-      `Drawing a line is recommended for accuracy!`
+      `OK = Direct Entry (fastest - just enter a dimension from your drawing)\n` +
+      `Cancel = Draw Reference Line (most accurate - draw line on your board)\n\n` +
+      `Recommended: Direct Entry for speed!`,
+      'MeasureMint - Calibration Method'
     );
     
-    if (useReferenceLine) {
+    if (method) {
+      // DIRECT ENTRY METHOD - No reference line needed!
+      const dimensionInput = prompt(
+        `Enter a known dimension from your drawing:\n\n` +
+        `Examples: 10, 12.5, 12'6", 6"\n\n` +
+        `This can be any dimension you see marked on the drawing.`
+      );
+      
+      if (!dimensionInput || dimensionInput.trim() === '') {
+        alert('Cancelled. No calibration applied.');
+        return;
+      }
+      
+      // Parse the input (handles feet-inches format)
+      const parsedValue = parseFeetInches(dimensionInput);
+      
+      if (parsedValue === null || parsedValue <= 0) {
+        alert('Invalid dimension. Please enter a valid number (e.g., 10, 12.5, 12\'6")');
+        return;
+      }
+      
+      // Ask for the unit if not already specified in the input
+      let unit = 'ft'; // default
+      
+      if (!dimensionInput.includes("'") && !dimensionInput.includes('"')) {
+        const unitInput = prompt(
+          `What unit is "${dimensionInput}" measured in?\n\n` +
+          `Options: ft, in, m, cm, mm, yd\n` +
+          `(Press Cancel to use feet)`,
+          'ft'
+        );
+        
+        if (unitInput && CONVERSIONS.toMeters[unitInput.trim()]) {
+          unit = unitInput.trim();
+        }
+      }
+      
+      // Convert parsed value to the selected unit if needed
+      let actualDistance = parsedValue;
+      if (dimensionInput.includes("'") || dimensionInput.includes('"')) {
+        // Input was in feet/inches, convert to target unit
+        actualDistance = convertUnits(parsedValue, 'ft', unit);
+      }
+      
+      // Now ask user to draw a line on the dimension so we can auto-calculate pixels
+      await showAlert(
+        `You entered: ${formatMeasurement(actualDistance, unit, true)}\n\n` +
+        `Next, please draw a line on the board that represents this dimension.\n\n` +
+        `The system will automatically measure the pixel distance.`,
+        'MeasureMint - Draw Reference Line'
+      );
+      
+      // Prompt user to select the line they just drew
+      await showAlert(
+        'Now, please select the line you just drew on the dimension.',
+        'MeasureMint - Select Line'
+      );
+      
+      const selection = await miro.board.getSelection();
+      
+      if (!selection || selection.length === 0) {
+        await showAlert('No line selected. Calibration cancelled.', 'Error');
+        return;
+      }
+      
+      const selectedLine = selection[0];
+      
+      if (selectedLine.type !== 'connector') {
+        await showAlert('Please select a line (connector). Calibration cancelled.', 'Error');
+        return;
+      }
+      
+      // Calculate pixel distance from the selected line
+      const startPos = selectedLine.start;
+      const endPos = selectedLine.end;
+      const pixelDistance = Math.sqrt(
+        Math.pow(endPos.x - startPos.x, 2) + 
+        Math.pow(endPos.y - startPos.y, 2)
+      );
+      
+      if (pixelDistance <= 0) {
+        await showAlert('Invalid line length. Calibration cancelled.', 'Error');
+        return;
+      }
+      
+      // Optionally delete the reference line
+      const shouldDelete = await showConfirm(
+        `Pixel distance measured: ${pixelDistance.toFixed(2)} pixels\n\n` +
+        `Do you want to delete the reference line?`,
+        'MeasureMint - Delete Reference Line?'
+      );
+      
+      if (shouldDelete) {
+        await miro.board.remove(selectedLine);
+      }
+      
+      // Create the calibration
+      const newCalibration = {
+        pixelsPerUnit: pixelDistance / actualDistance,
+        pixelDistance: pixelDistance,
+        actualDistance: actualDistance,
+        unit: unit,
+        ratio: scale.ratio,
+        scaleName: scale.name,
+        timestamp: new Date().toISOString()
+      };
+      
+      setCalibration(newCalibration);
+      
+      alert(
+        `✓ Calibration applied successfully!\n\n` +
+        `${scale.name} (1:${scale.ratio})\n` +
+        `Dimension: ${formatMeasurement(actualDistance, unit, true)}\n` +
+        `Screen: ${pixelDistance.toFixed(0)} pixels\n\n` +
+        `You can now start taking measurements!`
+      );
+      
+      // Automatically start measurement mode
+      setMode('measure');
+      await startMeasurement();
+      
+    } else {
+      // DRAW REFERENCE LINE METHOD (original method)
       // Store the scale preset and start calibration process
       setTempCalibrationDistance(scale);
       alert(
@@ -607,62 +759,19 @@ export default function PanelPage() {
         `The scale ratio (${scale.ratio}:1) will be applied automatically!`
       );
       await startCalibration();
-    } else {
-      // Manual entry method
-      const referenceDistance = prompt(
-        `Enter a reference distance from your drawing:\n` +
-        `(e.g., if you see "10 ft" marked on the drawing, enter 10)`
-      );
-      
-      if (!referenceDistance || isNaN(referenceDistance) || parseFloat(referenceDistance) <= 0) {
-        alert('Invalid distance. Scale preset not applied.');
-        return;
-      }
-      
-      const actualDistance = parseFloat(referenceDistance);
-      
-      // Ask for the unit
-      const unitOptions = ['ft', 'in', 'm', 'cm', 'yd', 'mm'];
-      const unit = prompt(
-        `What unit is the ${actualDistance} in?\n\n` +
-        `Options: ${unitOptions.join(', ')}`,
-        'ft'
-      );
-      
-      const finalUnit = (unit && CONVERSIONS.toMeters[unit]) ? unit : 'ft';
-      
-      // Simplified: use scale ratio to calculate a standard calibration
-      // Assume 100 pixels = actualDistance on screen (user can recalibrate later)
-      const pixelDist = 100;
-      
-      const newCalibration = {
-        pixelDistance: pixelDist,
-        actualDistance: actualDistance,
-        unit: finalUnit,
-        ratio: scale.ratio,
-        scaleName: scale.name,
-        timestamp: new Date().toISOString()
-      };
-      
-      setCalibration(newCalibration);
-      setMode('none');
-      
-      alert(
-        `✓ Scale preset applied!\n\n` +
-        `${scale.name} (1:${scale.ratio})\n` +
-        `Reference: ${actualDistance} ${finalUnit}\n\n` +
-        `You can now take measurements!\n` +
-        `(Recalibrate manually for precise measurements)`
-      );
     }
   };
 
   const startCalibration = async () => {
+    console.log('startCalibration called');
+    
     // Check if Miro API is available
     if (!window.miro) {
-      alert('Miro API not ready. Please wait a moment and try again.');
+      await showAlert('Miro API not ready. Please wait a moment and try again.', 'Error');
       return;
     }
+
+    console.log('Miro API available, mode:', mode);
 
     // If we're in measurement mode, clean up the current measurement line
     if (mode === 'measure' && calibrationLine) {
@@ -679,9 +788,13 @@ export default function PanelPage() {
     setCalibrationLine(null);
     setIsFirstMeasurement(true); // Reset for new calibration
     
+    console.log('Creating calibration line...');
+    
     try {
       // Create a draggable line for the user to position
       const viewport = await window.miro.board.viewport.get();
+      console.log('Viewport:', viewport);
+      
       const centerX = viewport.x + viewport.width / 2;
       const centerY = viewport.y + viewport.height / 2;
       
@@ -705,20 +818,23 @@ export default function PanelPage() {
         shape: 'straight',
         style: {
           strokeColor: '#f5576c',
-          strokeWidth: 6,
-          startStrokeCap: 'stealth',
-          endStrokeCap: 'stealth'
+          strokeWidth: 2,
+          startStrokeCap: 'none',
+          endStrokeCap: 'none'
         },
         captions: [{
           content: 'Calibration Line - Drag endpoints to known distance',
-          position: 0.5
+          position: 0.5,
+          textAlignVertical: 'middle'
         }]
       });
 
+      console.log('Calibration line created:', line.id);
       setCalibrationLine(line);
+      await showAlert('Calibration line created! Drag the endpoints to match a known distance on your image, then click "Set Calibration Distance".', 'Success');
     } catch (error) {
       console.error('Error starting calibration:', error);
-      alert('Error creating calibration line: ' + error.message);
+      await showAlert('Error creating calibration line: ' + error.message, 'Error');
       setMode('none');
     }
   };
@@ -753,8 +869,98 @@ export default function PanelPage() {
     }
   };
 
+  // NEW: Select and reuse an existing calibration line
+  const selectExistingCalibration = async () => {
+    try {
+      alert(
+        'Select an existing green calibration line on the board.\n\n' +
+        'The line\'s calibration values will be automatically loaded and reused for new measurements!'
+      );
+      
+      // Get user selection
+      const selection = await window.miro.board.getSelection();
+      
+      if (selection.length === 0) {
+        alert('No items selected. Please select a calibration line and try again.');
+        return;
+      }
+      
+      // Find a connector in the selection
+      const connector = selection.find(item => item.type === 'connector');
+      
+      if (!connector) {
+        alert('Please select a calibration line (connector/arrow).');
+        return;
+      }
+      
+      // Check if it has a calibration caption
+      const caption = connector.captions?.[0]?.content || '';
+      
+      if (!caption.includes('Calibration:')) {
+        alert('This line doesn\'t appear to be a calibration line. Please select a green calibration line.');
+        return;
+      }
+      
+      // Parse the calibration values from the caption
+      // Format: "Calibration: 10' 6" (1/4" = 1'-0")" or "Calibration: 10.5 ft"
+      const calibrationMatch = caption.match(/Calibration:\s*([0-9.'"\s]+)\s*([a-z]+)?/i);
+      
+      if (!calibrationMatch) {
+        alert('Could not parse calibration values from the selected line.');
+        return;
+      }
+      
+      let calibrationText = calibrationMatch[1].trim();
+      let unit = calibrationMatch[2] || 'ft';
+      
+      // Parse feet-inches format if present
+      const actualDistance = parseFeetInches(calibrationText) || parseFloat(calibrationText);
+      
+      if (!actualDistance || actualDistance <= 0) {
+        alert('Could not parse calibration distance from the selected line.');
+        return;
+      }
+      
+      // Calculate pixel distance from the connector's endpoints
+      const start = connector.start.position;
+      const end = connector.end.position;
+      const pixelDistance = Math.sqrt(
+        Math.pow(end.x - start.x, 2) + 
+        Math.pow(end.y - start.y, 2)
+      );
+      
+      // Create new calibration object
+      const newCalibration = {
+        pixelsPerUnit: pixelDistance / actualDistance,
+        pixelDistance: pixelDistance,
+        actualDistance: actualDistance,
+        unit: unit,
+        timestamp: new Date().toISOString()
+      };
+      
+      setCalibration(newCalibration);
+      setCalibrationLineId(connector.id);
+      
+      alert(
+        `✓ Calibration loaded successfully!\n\n` +
+        `Distance: ${formatMeasurement(actualDistance, unit, true)}\n` +
+        `Pixels: ${pixelDistance.toFixed(0)}px\n\n` +
+        `You can now start taking measurements!`
+      );
+      
+      // Automatically start measurement mode
+      setMode('measure');
+      await startMeasurement();
+      
+    } catch (error) {
+      console.error('Error selecting existing calibration:', error);
+      alert('Error loading calibration: ' + error.message);
+    }
+  };
+
   const startMeasurement = async () => {
     if (!calibration) {
+      alert('Please set up calibration first before measuring!');
       return;
     }
 
@@ -788,24 +994,27 @@ export default function PanelPage() {
         shape: 'straight',
         style: {
           strokeColor: '#4facfe',
-          strokeWidth: 6,
-          startStrokeCap: 'stealth',
-          endStrokeCap: 'stealth'
+          strokeWidth: 2,
+          startStrokeCap: 'none',
+          endStrokeCap: 'none'
         },
         captions: [{
           content: 'Measurement Line - Drag endpoints to measure',
-          position: 0.5
+          position: 0.5,
+          textAlignVertical: 'middle'
         }]
       });
 
       setCalibrationLine(line);
     } catch (error) {
       console.error('Error starting measurement:', error);
+      alert('Error creating measurement line: ' + error.message);
     }
   };
 
   const finishMeasurement = async () => {
     if (!calibrationLine) {
+      alert('No measurement line found. Please click "Distance" button first to create a measurement line.');
       return;
     }
 
@@ -832,8 +1041,8 @@ export default function PanelPage() {
 
       // Format the measurement for display
       const primaryUnit = calibration.unit;
-      const formattedValue = formatMeasurement(actualDistance, primaryUnit);
-      const measurementText = primaryUnit === 'ft' ? formattedValue : `${formattedValue} ${primaryUnit}`;
+      const formattedValue = formatMeasurement(actualDistance, primaryUnit, showFeetInches);
+      const measurementText = primaryUnit === 'ft' && showFeetInches ? formattedValue : `${formattedValue} ${primaryUnit}`;
 
       // Update the line's caption with the measurement by recreating it
       const updatedLine = await window.miro.board.createConnector({
@@ -846,13 +1055,14 @@ export default function PanelPage() {
         shape: 'straight',
         style: {
           strokeColor: '#4facfe',
-          strokeWidth: 6,
-          startStrokeCap: 'stealth',
-          endStrokeCap: 'stealth'
+          strokeWidth: 2,
+          startStrokeCap: 'none',
+          endStrokeCap: 'none'
         },
         captions: [{
           content: measurementText,
-          position: 0.5
+          position: 0.5,
+          textAlignVertical: 'middle'
         }]
       });
 
@@ -939,13 +1149,14 @@ export default function PanelPage() {
         shape: 'straight',
         style: {
           strokeColor: '#4facfe',
-          strokeWidth: 6,
-          startStrokeCap: 'stealth',
-          endStrokeCap: 'stealth'
+          strokeWidth: 2,
+          startStrokeCap: 'none',
+          endStrokeCap: 'none'
         },
         captions: [{
           content: measurementText,
-          position: 0.5
+          position: 0.5,
+          textAlignVertical: 'middle'
         }]
       });
 
@@ -1037,6 +1248,40 @@ export default function PanelPage() {
     setMode('area');
     setAreaPoints([]);
     setTempAreaLines([]);
+    
+    // Instructions for user
+    alert('Use the "Add Point" button to place markers on the board where you want to measure. Add at least 3 points, then click "Finish Area".');
+  };
+  
+  const promptForAreaPoint = async () => {
+    try {
+      // Ask user to select a location on the board by creating a temporary shape
+      const shape = await window.miro.board.createShape({
+        shape: 'circle',
+        width: 20,
+        height: 20,
+        style: {
+          fillColor: '#00b8d4',
+          borderWidth: 0
+        }
+      });
+      
+      // Get the shape's position
+      const x = shape.x;
+      const y = shape.y;
+      
+      // Add this point to our area
+      await addAreaPoint(x, y);
+      
+      // Delete the temporary shape
+      await window.miro.board.remove(shape);
+      
+      // Zoom to show the new point
+      await window.miro.board.viewport.zoomTo(shape);
+      
+    } catch (error) {
+      console.error('Error adding area point:', error);
+    }
   };
 
   const addAreaPoint = async (x, y) => {
@@ -1124,10 +1369,10 @@ export default function PanelPage() {
       const centerX = areaPoints.reduce((sum, p) => sum + p.x, 0) / areaPoints.length;
       const centerY = areaPoints.reduce((sum, p) => sum + p.y, 0) / areaPoints.length;
 
-      const formattedArea = formatMeasurement(actualArea, calibration.unit);
-      const formattedPerimeter = formatMeasurement(actualPerimeter, calibration.unit);
-      const areaDisplay = calibration.unit === 'ft' ? `${formattedArea} sq` : `${formattedArea} ${calibration.unit}²`;
-      const perimDisplay = calibration.unit === 'ft' ? formattedPerimeter : `${formattedPerimeter} ${calibration.unit}`;
+      const formattedArea = formatMeasurement(actualArea, calibration.unit, showFeetInches);
+      const formattedPerimeter = formatMeasurement(actualPerimeter, calibration.unit, showFeetInches);
+      const areaDisplay = calibration.unit === 'ft' && showFeetInches ? `${formattedArea} sq` : `${formattedArea} ${calibration.unit}²`;
+      const perimDisplay = calibration.unit === 'ft' && showFeetInches ? formattedPerimeter : `${formattedPerimeter} ${calibration.unit}`;
       
       const areaText = await window.miro.board.createText({
         content: `Area: ${areaDisplay}\nPerimeter: ${perimDisplay}`,
@@ -1184,12 +1429,52 @@ export default function PanelPage() {
     setMode('none');
   };
 
-  const handleCalibrationComplete = async () => {
-    const actualDistance = parseFloat(calibrationValue);
+  // Parse feet and inches notation (e.g., 12' 6" or 12'6" or 12' or 6")
+  const parseFeetInches = (input) => {
+    if (!input || typeof input !== 'string') return null;
     
-    if (!actualDistance || actualDistance <= 0) {
-      alert('Please enter a valid distance');
+    const trimmed = input.trim();
+    
+    // Pattern to match feet and inches: 12' 6" or 12'6" or 12' or 6"
+    const feetInchesPattern = /^(\d+(?:\.\d+)?)'?\s*(\d+(?:\.\d+)?)?"?$|^(\d+(?:\.\d+)?)'$/;
+    const inchesOnlyPattern = /^(\d+(?:\.\d+)?)"$/;
+    
+    // Check for feet and inches (e.g., 12' 6" or 12'6")
+    const feetInchesMatch = trimmed.match(/(\d+(?:\.\d+)?)'(?:\s*(\d+(?:\.\d+)?)?")?/);
+    if (feetInchesMatch) {
+      const feet = parseFloat(feetInchesMatch[1] || 0);
+      const inches = parseFloat(feetInchesMatch[2] || 0);
+      return feet + (inches / 12); // Return total in feet
+    }
+    
+    // Check for inches only (e.g., 6")
+    const inchesMatch = trimmed.match(/^(\d+(?:\.\d+)?)"$/);
+    if (inchesMatch) {
+      const inches = parseFloat(inchesMatch[1]);
+      return inches / 12; // Convert to feet
+    }
+    
+    // If no special notation, try parsing as regular number
+    const num = parseFloat(trimmed);
+    return isNaN(num) ? null : num;
+  };
+
+  const handleCalibrationComplete = async () => {
+    // Parse the input value to handle feet/inches notation
+    const parsedValue = parseFeetInches(calibrationValue);
+    
+    if (parsedValue === null || parsedValue <= 0) {
+      alert('Please enter a valid distance (e.g., 12.5, 12\' 6", or 6")');
       return;
+    }
+    
+    // Convert parsed value to the selected calibration unit
+    let actualDistance = parsedValue;
+    
+    // If input contained feet/inches notation, convert to selected unit
+    if (calibrationValue.includes("'") || calibrationValue.includes('"')) {
+      // parsedValue is in feet, convert to calibration unit
+      actualDistance = convertUnits(parsedValue, 'ft', calibrationUnit);
     }
 
     try {
@@ -1229,12 +1514,12 @@ export default function PanelPage() {
             shape: 'straight',
             style: {
               strokeColor: '#10bb82',
-              strokeWidth: 6,
-              startStrokeCap: 'stealth',
-              endStrokeCap: 'stealth'
+              strokeWidth: 2,
+              startStrokeCap: 'none',
+              endStrokeCap: 'none'
             },
             captions: [{
-              content: `Calibration: ${actualDistance} ${calibrationUnit}${scalePreset ? ` (${scalePreset.name})` : ''}`,
+              content: `Calibration: ${formatMeasurement(actualDistance, calibrationUnit, true)}${scalePreset ? ` (${scalePreset.name})` : ''}`,
               position: 0.5
             }]
           });
@@ -1262,12 +1547,12 @@ export default function PanelPage() {
             shape: 'straight',
             style: {
               strokeColor: '#10bb82',
-              strokeWidth: 6,
-              startStrokeCap: 'stealth',
-              endStrokeCap: 'stealth'
+              strokeWidth: 2,
+              startStrokeCap: 'none',
+              endStrokeCap: 'none'
             },
             captions: [{
-              content: `Calibration: ${actualDistance} ${calibrationUnit}${scalePreset ? ` (${scalePreset.name})` : ''}`,
+              content: `Calibration: ${formatMeasurement(actualDistance, calibrationUnit, true)}${scalePreset ? ` (${scalePreset.name})` : ''}`,
               position: 0.5
             }]
           });
@@ -1290,7 +1575,7 @@ export default function PanelPage() {
         alert(
           `✓ Scale preset applied successfully!\n\n` +
           `${scalePreset.name} (1:${scalePreset.ratio})\n` +
-          `Calibration: ${actualDistance} ${calibrationUnit}\n\n` +
+          `Calibration: ${formatMeasurement(actualDistance, calibrationUnit, true)}\n\n` +
           `You can now start taking measurements!`
         );
       }
@@ -1341,12 +1626,12 @@ export default function PanelPage() {
       
       switch (m.type) {
         case 'area':
-          value = formatMeasurement(m.area, m.unit);
+          value = formatMeasurement(m.area, m.unit, showFeetInches);
           unit = m.unit === 'ft' ? 'sq ft' : `${m.unit}²`;
-          additionalInfo = m.unit === 'ft' ? `Perimeter: ${formatMeasurement(m.perimeter, m.unit)}` : `Perimeter: ${formatMeasurement(m.perimeter, m.unit)} ${m.unit}`;
+          additionalInfo = m.unit === 'ft' ? `Perimeter: ${formatMeasurement(m.perimeter, m.unit, showFeetInches)}` : `Perimeter: ${formatMeasurement(m.perimeter, m.unit, showFeetInches)} ${m.unit}`;
           break;
         case 'polyline':
-          value = formatMeasurement(m.totalLength, m.unit);
+          value = formatMeasurement(m.totalLength, m.unit, showFeetInches);
           unit = m.unit === 'ft' ? '' : m.unit;
           additionalInfo = `${m.points.length} segments`;
           break;
@@ -1366,38 +1651,38 @@ export default function PanelPage() {
           additionalInfo = '';
           break;
         case 'circle':
-          value = formatMeasurement(m.radius, m.unit);
+          value = formatMeasurement(m.radius, m.unit, showFeetInches);
           unit = m.unit === 'ft' ? '(radius)' : `${m.unit} (radius)`;
-          const formattedD = formatMeasurement(m.diameter, m.unit);
-          const formattedC = formatMeasurement(m.circumference, m.unit);
-          const formattedA = formatMeasurement(m.area, m.unit);
+          const formattedD = formatMeasurement(m.diameter, m.unit, showFeetInches);
+          const formattedC = formatMeasurement(m.circumference, m.unit, showFeetInches);
+          const formattedA = formatMeasurement(m.area, m.unit, showFeetInches);
           additionalInfo = m.unit === 'ft' ? `D: ${formattedD}, C: ${formattedC}, A: ${formattedA} sq` : `D: ${formattedD}, C: ${formattedC}, A: ${formattedA} ${m.unit}²`;
           break;
         case 'cutout':
-          value = formatMeasurement(m.netArea, m.unit);
+          value = formatMeasurement(m.netArea, m.unit, showFeetInches);
           unit = m.unit === 'ft' ? 'sq ft (net)' : `${m.unit}² (net)`;
-          const formattedGross = formatMeasurement(m.grossArea, m.unit);
-          const formattedCutout = formatMeasurement(m.cutoutArea, m.unit);
-          const formattedNet = formatMeasurement(m.netArea, m.unit);
+          const formattedGross = formatMeasurement(m.grossArea, m.unit, showFeetInches);
+          const formattedCutout = formatMeasurement(m.cutoutArea, m.unit, showFeetInches);
+          const formattedNet = formatMeasurement(m.netArea, m.unit, showFeetInches);
           const sqUnit = m.unit === 'ft' ? 'sq' : `${m.unit}²`;
           additionalInfo = `Gross: ${formattedGross} ${sqUnit}, Cutouts: ${formattedCutout} ${sqUnit}, Net: ${formattedNet} ${sqUnit}`;
           break;
         case 'slope':
           value = m.riseRunRatio;
           unit = 'ratio';
-          const formattedRise = formatMeasurement(m.rise, m.unit);
-          const formattedRun = formatMeasurement(m.run, m.unit);
+          const formattedRise = formatMeasurement(m.rise, m.unit, showFeetInches);
+          const formattedRun = formatMeasurement(m.run, m.unit, showFeetInches);
           additionalInfo = m.unit === 'ft' ? `${formatNumber(m.slopePercentage, 1)}% / ${formatNumber(m.slopeDegrees, 1)}°, Rise: ${formattedRise}, Run: ${formattedRun}` : `${formatNumber(m.slopePercentage, 1)}% / ${formatNumber(m.slopeDegrees, 1)}°, Rise: ${formattedRise} ${m.unit}, Run: ${formattedRun} ${m.unit}`;
           break;
         case 'volume':
-          value = formatMeasurement(m.volume, m.unit);
+          value = formatMeasurement(m.volume, m.unit, showFeetInches);
           unit = m.unit === 'ft' ? 'cu ft' : `${m.unit}³`;
-          const formattedBase = formatMeasurement(m.baseArea, m.unit);
-          const formattedHeight = formatMeasurement(m.height, m.unit);
+          const formattedBase = formatMeasurement(m.baseArea, m.unit, showFeetInches);
+          const formattedHeight = formatMeasurement(m.height, m.unit, showFeetInches);
           additionalInfo = m.unit === 'ft' ? `Base: ${formattedBase} sq, Height: ${formattedHeight}` : `Base: ${formattedBase} ${m.unit}², Height: ${formattedHeight} ${m.unit}`;
           break;
         default: // linear
-          value = formatMeasurement(m.distance, m.unit);
+          value = formatMeasurement(m.distance, m.unit, showFeetInches);
           unit = m.unit === 'ft' ? '' : m.unit;
           additionalInfo = '';
       }
@@ -1480,77 +1765,69 @@ export default function PanelPage() {
   };
 
   // Polyline Measurement Functions
-  const startPolylineMeasurement = () => {
+  const startPolylineMeasurement = async () => {
     if (!calibration) {
+      await showAlert('Please set up calibration first.', 'MeasureMint');
       return;
     }
-    setMode('polyline');
-    setPolylinePoints([]);
-    setTempPolylineLines([]);
-  };
-
-  const addPolylinePoint = async (x, y) => {
-    const newPoint = { x, y };
-    const updatedPoints = [...polylinePoints, newPoint];
-    setPolylinePoints(updatedPoints);
-
-    // Draw line from previous point to new point
-    if (polylinePoints.length > 0) {
-      const prevPoint = polylinePoints[polylinePoints.length - 1];
-      
-      try {
-        const line = await window.miro.board.createConnector({
-          start: { 
-            position: prevPoint
-          },
-          end: { 
-            position: newPoint
-          },
-          shape: 'straight',
-          style: {
-            strokeColor: '#ff6b6b', // Red for polyline
-            strokeWidth: 4,
-            startStrokeCap: 'stealth',
-            endStrokeCap: 'stealth'
-          }
-        });
-        
-        setTempPolylineLines([...tempPolylineLines, line.id]);
-      } catch (error) {
-        console.error('Error drawing polyline segment:', error);
-      }
-    }
-  };
-
-  const finishPolylineMeasurement = async () => {
-    if (polylinePoints.length < 2) {
-      alert('Please select at least 2 points');
-      return;
-    }
-
+    
     try {
+      const proceed = await showConfirm(
+        'Draw multiple connected lines on the board to represent your path.\n\n' +
+        'Then select ALL the lines and click OK.',
+        'MeasureMint - Polyline Path'
+      );
+      
+      if (!proceed) return;
+      
+      const selection = await miro.board.getSelection();
+      
+      if (!selection || selection.length === 0) {
+        await showAlert('No lines selected. Please select the path lines and try again.', 'Error');
+        return;
+      }
+      
+      // Filter only connectors
+      const lines = selection.filter(item => item.type === 'connector');
+      
+      if (lines.length === 0) {
+        await showAlert('Please select connector lines (not shapes or text).', 'Error');
+        return;
+      }
+      
       // Calculate total length
-      let totalLength = 0;
+      let totalPixels = 0;
       const segments = [];
       
-      for (let i = 0; i < polylinePoints.length - 1; i++) {
-        const dx = polylinePoints[i + 1].x - polylinePoints[i].x;
-        const dy = polylinePoints[i + 1].y - polylinePoints[i].y;
-        const segmentLength = Math.sqrt(dx * dx + dy * dy);
-        totalLength += segmentLength;
-        segments.push(segmentLength / calibration.pixelsPerUnit);
+      for (const line of lines) {
+        // Handle both direct coordinates and position objects
+        const startX = line.start.x ?? line.start.position?.x ?? 0;
+        const startY = line.start.y ?? line.start.position?.y ?? 0;
+        const endX = line.end.x ?? line.end.position?.x ?? 0;
+        const endY = line.end.y ?? line.end.position?.y ?? 0;
+        
+        const dx = endX - startX;
+        const dy = endY - startY;
+        const segmentPixels = Math.sqrt(dx * dx + dy * dy);
+        totalPixels += segmentPixels;
+        const segmentLength = segmentPixels / calibration.pixelsPerUnit;
+        segments.push(segmentLength);
       }
-
-      const actualLength = totalLength / calibration.pixelsPerUnit;
-
-      // Add label at the end point
-      const lastPoint = polylinePoints[polylinePoints.length - 1];
-      const formattedLength = formatMeasurement(actualLength, calibration.unit);
+      
+      const totalLength = totalPixels / calibration.pixelsPerUnit;
+      
+      // Create label at the last line's endpoint
+      const lastLine = lines[lines.length - 1];
+      const labelX = lastLine.end.x ?? lastLine.end.position?.x ?? 0;
+      const labelY = (lastLine.end.y ?? lastLine.end.position?.y ?? 0) + 50;
+      
+      const formattedLength = formatMeasurement(totalLength, calibration.unit);
       const lengthDisplay = calibration.unit === 'ft' ? formattedLength : `${formattedLength} ${calibration.unit}`;
-      const lengthText = await window.miro.board.createText({
-        content: `Total: ${lengthDisplay}\n${polylinePoints.length} points`,
-        x: lastPoint.x,
-        y: lastPoint.y + 50,
+      
+      const lengthText = await miro.board.createText({
+        content: `Path Length: ${lengthDisplay}\\n${lines.length} segments`,
+        x: labelX,
+        y: labelY,
         width: 200,
         style: {
           color: '#ff6b6b',
@@ -1558,48 +1835,26 @@ export default function PanelPage() {
           textAlign: 'center'
         }
       });
-
-      // Store the polyline measurement
+      
+      // Store the measurement
       const polylineMeasurement = {
         id: Date.now(),
         type: 'polyline',
-        totalLength: actualLength,
+        totalLength,
         segments,
         unit: calibration.unit,
-        points: polylinePoints,
-        lineIds: tempPolylineLines,
+        lineIds: lines.map(l => l.id),
         textId: lengthText.id,
         timestamp: new Date()
       };
-
-      setPolylineShapes([...polylineShapes, polylineMeasurement]);
+      
       setMeasurements([...measurements, polylineMeasurement]);
-
-      // Reset for next polyline
-      setPolylinePoints([]);
-      setTempPolylineLines([]);
-      setMode('none');
+      await showAlert(`Path measured: ${lengthDisplay}\\n${lines.length} segments`, 'Success');
+      
     } catch (error) {
-      console.error('Error finishing polyline measurement:', error);
-      alert('Error: ' + error.message);
+      console.error('Error measuring polyline:', error);
+      await showAlert('Error measuring path: ' + error.message, 'Error');
     }
-  };
-
-  const cancelPolylineMeasurement = async () => {
-    // Remove temporary lines
-    if (tempPolylineLines.length > 0) {
-      try {
-        for (const lineId of tempPolylineLines) {
-          await window.miro.board.remove({ id: lineId });
-        }
-      } catch (error) {
-        console.error('Error removing temp lines:', error);
-      }
-    }
-    
-    setPolylinePoints([]);
-    setTempPolylineLines([]);
-    setMode('none');
   };
 
   // Volume Measurement Functions
@@ -1702,71 +1957,89 @@ export default function PanelPage() {
   };
 
   // Angle Measurement Functions
-  const startAngleMeasurement = () => {
+  const startAngleMeasurement = async () => {
     if (!calibration) {
+      await showAlert('Please set up calibration first.', 'MeasureMint');
       return;
     }
-    setMode('angle');
-    setAnglePoints([]);
-    setAngleLines([]);
-  };
-
-  const addAnglePoint = async (x, y) => {
-    const newPoint = { x, y };
-    const updatedPoints = [...anglePoints, newPoint];
-    setAnglePoints(updatedPoints);
-
-    // Draw line from previous point
-    if (anglePoints.length > 0 && anglePoints.length < 3) {
-      const prevPoint = anglePoints[anglePoints.length - 1];
-      
-      try {
-        const line = await window.miro.board.createConnector({
-          start: { 
-            position: prevPoint
-          },
-          end: { 
-            position: newPoint
-          },
-          shape: 'straight',
-          style: {
-            strokeColor: '#ff9800', // Orange for angle
-            strokeWidth: 4,
-            startStrokeCap: 'none',
-            endStrokeCap: 'stealth'
-          }
-        });
-        
-        setAngleLines([...angleLines, line.id]);
-      } catch (error) {
-        console.error('Error drawing angle line:', error);
-      }
-    }
-
-    // If we have 3 points, calculate angle
-    if (updatedPoints.length === 3) {
-      finishAngleMeasurement(updatedPoints);
-    }
-  };
-
-  const finishAngleMeasurement = async (points) => {
+    
     try {
-      // Calculate angle using vectors
-      const [p1, vertex, p2] = points;
+      const proceed = await showConfirm(
+        'Draw two lines that meet at a vertex (angle point).\n\n' +
+        'Then select BOTH lines and click OK.\n\n' +
+        'The angle will be calculated at their intersection.',
+        'MeasureMint - Angle Measurement'
+      );
       
-      // Vectors from vertex
+      if (!proceed) return;
+      
+      const selection = await miro.board.getSelection();
+      
+      if (!selection || selection.length !== 2) {
+        await showAlert('Please select exactly 2 connector lines.', 'Error');
+        return;
+      }
+      
+      const lines = selection.filter(item => item.type === 'connector');
+      
+      if (lines.length !== 2) {
+        await showAlert('Please select exactly 2 connector lines (not shapes or text).', 'Error');
+        return;
+      }
+      
+      const [line1, line2] = lines;
+      
+      // Helper to get coordinates
+      const getCoords = (point) => ({
+        x: point.x ?? point.position?.x ?? 0,
+        y: point.y ?? point.position?.y ?? 0
+      });
+      
+      const line1Start = getCoords(line1.start);
+      const line1End = getCoords(line1.end);
+      const line2Start = getCoords(line2.start);
+      const line2End = getCoords(line2.end);
+      
+      // Find common vertex (shared point)
+      let vertex, p1, p2;
+      
+      if (Math.abs(line1End.x - line2Start.x) < 5 && Math.abs(line1End.y - line2Start.y) < 5) {
+        // line1.end connects to line2.start
+        vertex = line1End;
+        p1 = line1Start;
+        p2 = line2End;
+      } else if (Math.abs(line1End.x - line2End.x) < 5 && Math.abs(line1End.y - line2End.y) < 5) {
+        // line1.end connects to line2.end
+        vertex = line1End;
+        p1 = line1Start;
+        p2 = line2Start;
+      } else if (Math.abs(line1Start.x - line2Start.x) < 5 && Math.abs(line1Start.y - line2Start.y) < 5) {
+        // line1.start connects to line2.start
+        vertex = line1Start;
+        p1 = line1End;
+        p2 = line2End;
+      } else if (Math.abs(line1Start.x - line2End.x) < 5 && Math.abs(line1Start.y - line2End.y) < 5) {
+        // line1.start connects to line2.end
+        vertex = line1Start;
+        p1 = line1End;
+        p2 = line2Start;
+      } else {
+        await showAlert('The two lines must share a common endpoint (vertex).', 'Error');
+        return;
+      }
+      
+      // Calculate angle using vectors
       const v1 = { x: p1.x - vertex.x, y: p1.y - vertex.y };
       const v2 = { x: p2.x - vertex.x, y: p2.y - vertex.y };
       
-      // Calculate angle using dot product
       const dot = v1.x * v2.x + v1.y * v2.y;
       const mag1 = Math.sqrt(v1.x * v1.x + v1.y * v1.y);
       const mag2 = Math.sqrt(v2.x * v2.x + v2.y * v2.y);
       const angleRad = Math.acos(dot / (mag1 * mag2));
       const angleDeg = angleRad * (180 / Math.PI);
-
-      // Add label at vertex
-      const angleText = await window.miro.board.createText({
+      
+      // Create label at vertex
+      const angleText = await miro.board.createText({
         content: `${formatNumber(angleDeg, 1)}°`,
         x: vertex.x,
         y: vertex.y + 50,
@@ -1778,119 +2051,86 @@ export default function PanelPage() {
           fontWeight: 'bold'
         }
       });
-
+      
       const angleMeasurement = {
         id: Date.now(),
         type: 'angle',
         angle: angleDeg,
-        points,
-        lineIds: angleLines,
+        lineIds: lines.map(l => l.id),
         textId: angleText.id,
+        unit: calibration.unit,
         timestamp: new Date()
       };
-
+      
       setMeasurements([...measurements, angleMeasurement]);
-      setAnglePoints([]);
-      setAngleLines([]);
-      setMode('none');
+      await showAlert(`Angle measured: ${formatNumber(angleDeg, 1)}°`, 'Success');
+      
     } catch (error) {
-      console.error('Error calculating angle:', error);
+      console.error('Error measuring angle:', error);
+      await showAlert('Error measuring angle: ' + error.message, 'Error');
     }
-  };
-
-  const cancelAngleMeasurement = async () => {
-    if (angleLines.length > 0) {
-      try {
-        for (const lineId of angleLines) {
-          await window.miro.board.remove({ id: lineId });
-        }
-      } catch (error) {
-        console.error('Error removing angle lines:', error);
-      }
-    }
-    setAnglePoints([]);
-    setAngleLines([]);
-    setMode('none');
   };
 
   // Circle Measurement Functions
-  const startCircleMeasurement = () => {
+  const startCircleMeasurement = async () => {
     if (!calibration) {
+      await showAlert('Please set up calibration first.', 'MeasureMint');
       return;
     }
-    setMode('circle');
-    setCircleCenter(null);
-    setCircleRadius(null);
-    setTempCircle(null);
-  };
-
-  const addCirclePoint = async (x, y) => {
-    if (!circleCenter) {
-      // First click - set center
-      setCircleCenter({ x, y });
-      
-      // Create a small marker at center
-      try {
-        const marker = await window.miro.board.createShape({
-          content: '⊕',
-          shape: 'circle',
-          x,
-          y,
-          width: 20,
-          height: 20,
-          style: {
-            fillColor: '#e91e63', // Pink for circle
-            borderColor: '#e91e63'
-          }
-        });
-        setTempCircle(marker.id);
-      } catch (error) {
-        console.error('Error creating center marker:', error);
-      }
-    } else {
-      // Second click - calculate radius and finish
-      const dx = x - circleCenter.x;
-      const dy = y - circleCenter.y;
-      const radiusPixels = Math.sqrt(dx * dx + dy * dy);
-      const radius = radiusPixels / calibration.pixelsPerUnit;
-      
-      finishCircleMeasurement(radiusPixels, radius);
-    }
-  };
-
-  const finishCircleMeasurement = async (radiusPixels, radius) => {
+    
     try {
+      const proceed = await showConfirm(
+        'Draw a circle shape on the board.\n\n' +
+        'Then select the circle and click OK.\n\n' +
+        'The radius, diameter, circumference, and area will be calculated.',
+        'MeasureMint - Circle Measurement'
+      );
+      
+      if (!proceed) return;
+      
+      const selection = await miro.board.getSelection();
+      
+      if (!selection || selection.length === 0) {
+        await showAlert('No shape selected. Please select a circle and try again.', 'Error');
+        return;
+      }
+      
+      const circle = selection[0];
+      
+      if (circle.type !== 'shape' || (circle.shape !== 'circle' && circle.shape !== 'oval')) {
+        await showAlert('Please select a circle or oval shape.', 'Error');
+        return;
+      }
+      
+      // Get circle dimensions (average width and height for ovals)
+      const radiusPixels = (circle.width + circle.height) / 4; // Divide by 4 to get radius
+      const radius = radiusPixels / calibration.pixelsPerUnit;
       const diameter = radius * 2;
       const circumference = 2 * Math.PI * radius;
       const area = Math.PI * radius * radius;
-
-      // Draw circle
-      const circle = await window.miro.board.createShape({
-        shape: 'circle',
-        x: circleCenter.x,
-        y: circleCenter.y,
-        width: radiusPixels * 2,
-        height: radiusPixels * 2,
-        style: {
-          fillOpacity: 0,
-          borderColor: '#e91e63',
-          borderWidth: 4
-        }
-      });
-
-      // Add label
-      const circleText = await window.miro.board.createText({
-        content: `R: ${formatNumber(radius, 2)} ${calibration.unit}\nD: ${formatNumber(diameter, 2)} ${calibration.unit}\nC: ${formatNumber(circumference, 2)} ${calibration.unit}\nA: ${formatNumber(area, 2)} ${calibration.unit}²`,
-        x: circleCenter.x,
-        y: circleCenter.y + radiusPixels + 60,
-        width: 200,
+      
+      // Format measurements
+      const formattedRadius = formatMeasurement(radius, calibration.unit);
+      const formattedDiameter = formatMeasurement(diameter, calibration.unit);
+      const formattedCircumference = formatMeasurement(circumference, calibration.unit);
+      const formattedArea = formatMeasurement(area, calibration.unit);
+      
+      const unitLabel = calibration.unit === 'ft' ? '' : ` ${calibration.unit}`;
+      const sqUnitLabel = calibration.unit === 'ft' ? ' sq ft' : ` ${calibration.unit}²`;
+      
+      // Create label below circle
+      const circleText = await miro.board.createText({
+        content: `Radius: ${formattedRadius}${unitLabel}\\nDiameter: ${formattedDiameter}${unitLabel}\\nCircumference: ${formattedCircumference}${unitLabel}\\nArea: ${formattedArea}${sqUnitLabel}`,
+        x: circle.x,
+        y: circle.y + radiusPixels + 60,
+        width: 250,
         style: {
           color: '#e91e63',
           fontSize: 12,
           textAlign: 'center'
         }
       });
-
+      
       const circleMeasurement = {
         id: Date.now(),
         type: 'circle',
@@ -1899,40 +2139,21 @@ export default function PanelPage() {
         circumference,
         area,
         unit: calibration.unit,
-        center: circleCenter,
         shapeId: circle.id,
         textId: circleText.id,
         timestamp: new Date()
       };
-
+      
       setMeasurements([...measurements, circleMeasurement]);
+      await showAlert(
+        `Circle measured:\\nRadius: ${formattedRadius}${unitLabel}\\nArea: ${formattedArea}${sqUnitLabel}`,
+        'Success'
+      );
       
-      // Remove temp marker
-      if (tempCircle) {
-        await window.miro.board.remove({ id: tempCircle });
-      }
-      
-      setCircleCenter(null);
-      setCircleRadius(null);
-      setTempCircle(null);
-      setMode('none');
     } catch (error) {
-      console.error('Error finishing circle measurement:', error);
+      console.error('Error measuring circle:', error);
+      await showAlert('Error measuring circle: ' + error.message, 'Error');
     }
-  };
-
-  const cancelCircleMeasurement = async () => {
-    if (tempCircle) {
-      try {
-        await window.miro.board.remove({ id: tempCircle });
-      } catch (error) {
-        console.error('Error removing temp circle:', error);
-      }
-    }
-    setCircleCenter(null);
-    setCircleRadius(null);
-    setTempCircle(null);
-    setMode('none');
   };
 
   // Cutout/Subtract Areas Functions
@@ -2199,61 +2420,55 @@ export default function PanelPage() {
   };
 
   // Slope/Pitch Measurement Functions
-  const startSlopeMeasurement = () => {
-    setMode('slope');
-    setSlopePoints([]);
-    setSlopeLine(null);
-  };
-
-  const addSlopePoint = async (x, y) => {
-    const newPoint = { x, y };
-    const updatedPoints = [...slopePoints, newPoint];
-    setSlopePoints(updatedPoints);
-
-    // If this is the second point, create the line and calculate slope
-    if (updatedPoints.length === 2) {
-      try {
-        const [p1, p2] = updatedPoints;
-        
-        // Create line
-        const line = await window.miro.board.createConnector({
-          start: { 
-            position: p1
-          },
-          end: { 
-            position: p2
-          },
-          shape: 'straight',
-          style: {
-            strokeColor: '#9c27b0', // Purple for slope
-            strokeWidth: 6,
-            startStrokeCap: 'stealth',
-            endStrokeCap: 'stealth'
-          }
-        });
-
-        setSlopeLine(line.id);
-        
-        // Calculate slope
-        await finishSlopeMeasurement(updatedPoints, line.id);
-      } catch (error) {
-        console.error('Error creating slope line:', error);
-      }
+  const startSlopeMeasurement = async () => {
+    if (!calibration) {
+      await showAlert('Please set up calibration first.', 'MeasureMint');
+      return;
     }
-  };
-
-  const finishSlopeMeasurement = async (points, lineId) => {
+    
     try {
-      const [p1, p2] = points;
+      const proceed = await showConfirm(
+        'Draw a line representing the slope.\n\n' +
+        'Then select the line and click OK.\n\n' +
+        'The slope will be calculated in multiple formats:\n' +
+        '• Rise:Run ratio\n' +
+        '• Percentage\n' +
+        '• Degrees',
+        'MeasureMint - Slope Measurement'
+      );
+      
+      if (!proceed) return;
+      
+      const selection = await miro.board.getSelection();
+      
+      if (!selection || selection.length === 0) {
+        await showAlert('No line selected. Please select a connector line and try again.', 'Error');
+        return;
+      }
+      
+      const line = selection[0];
+      
+      if (line.type !== 'connector') {
+        await showAlert('Please select a connector line (not a shape or text).', 'Error');
+        return;
+      }
+      
+      // Calculate slope - handle both coordinate formats
+      const getCoords = (point) => ({
+        x: point.x ?? point.position?.x ?? 0,
+        y: point.y ?? point.position?.y ?? 0
+      });
+      
+      const p1 = getCoords(line.start);
+      const p2 = getCoords(line.end);
       
       // Calculate rise and run in pixels
       const runPixels = Math.abs(p2.x - p1.x);
       const risePixels = Math.abs(p2.y - p1.y);
       
       // Convert to real-world units
-      const pixelsPerUnit = calibration.pixelDistance / calibration.actualDistance;
-      const run = runPixels / pixelsPerUnit;
-      const rise = risePixels / pixelsPerUnit;
+      const run = runPixels / calibration.pixelsPerUnit;
+      const rise = risePixels / calibration.pixelsPerUnit;
       
       // Calculate slope formats
       const slopeRatio = run > 0 ? rise / run : 0;
@@ -2269,74 +2484,66 @@ export default function PanelPage() {
         const runInt = Math.round(run * 100) / divisor;
         riseRunRatio = `${formatNumber(riseInt, 2)}:${formatNumber(runInt, 2)}`;
       }
-
-      // Get conversions for rise and run
-      const riseConversions = getAllConversions(rise, calibration.unit);
-      const runConversions = getAllConversions(run, calibration.unit);
-
-      // Update line with caption
-      const line = await window.miro.board.get({ id: [lineId] });
-      if (line.length > 0) {
-        const updatedLine = await window.miro.board.createConnector({
-          start: { ...line[0].start },
-          end: { ...line[0].end },
-          shape: 'straight',
-          style: {
-            strokeColor: '#9c27b0',
-            strokeWidth: 6,
-            startStrokeCap: 'stealth',
-            endStrokeCap: 'stealth'
-          },
-          captions: [{
-            content: `Slope: ${riseRunRatio} (${formatNumber(slopePercentage, 1)}%, ${formatNumber(slopeDegrees, 1)}°)`,
-            position: 0.5
-          }]
-        });
-
-        // Remove old line
-        await window.miro.board.remove(line[0]);
-
-        // Store the slope measurement
-        const slopeMeasurement = {
-          id: Date.now(),
-          type: 'slope',
-          rise,
-          run,
-          riseRunRatio,
-          slopePercentage,
-          slopeDegrees,
-          unit: calibration.unit,
-          riseConversions,
-          runConversions,
-          points,
-          lineId: updatedLine.id,
-          timestamp: new Date().toISOString()
-        };
-
-        setMeasurements([...measurements, slopeMeasurement]);
-        
-        // Reset state
-        setSlopePoints([]);
-        setSlopeLine(null);
-        setMode('none');
-      }
+      
+      // Format measurements
+      const formattedRise = formatMeasurement(rise, calibration.unit);
+      const formattedRun = formatMeasurement(run, calibration.unit);
+      const unitLabel = calibration.unit === 'ft' ? '' : ` ${calibration.unit}`;
+      
+      // Update line with caption - properly handle start/end format
+      const updatedLine = await miro.board.createConnector({
+        start: { 
+          position: p1
+        },
+        end: { 
+          position: p2
+        },
+        shape: 'straight',
+        style: {
+          strokeColor: '#9c27b0',
+          strokeWidth: 2,
+          startStrokeCap: 'none',
+          endStrokeCap: 'none'
+        },
+        captions: [{
+          content: `Slope: ${riseRunRatio} (${formatNumber(slopePercentage, 1)}%, ${formatNumber(slopeDegrees, 1)}°)`,
+          position: 0.5,
+          textAlignVertical: 'middle'
+        }]
+      });
+      
+      // Remove old line
+      await miro.board.remove(line);
+      
+      // Store the slope measurement
+      const slopeMeasurement = {
+        id: Date.now(),
+        type: 'slope',
+        rise,
+        run,
+        riseRunRatio,
+        slopePercentage,
+        slopeDegrees,
+        unit: calibration.unit,
+        lineId: updatedLine.id,
+        timestamp: new Date()
+      };
+      
+      setMeasurements([...measurements, slopeMeasurement]);
+      await showAlert(
+        `Slope measured:\\n` +
+        `Ratio: ${riseRunRatio}\\n` +
+        `Percentage: ${formatNumber(slopePercentage, 1)}%\\n` +
+        `Degrees: ${formatNumber(slopeDegrees, 1)}°\\n` +
+        `Rise: ${formattedRise}${unitLabel}\\n` +
+        `Run: ${formattedRun}${unitLabel}`,
+        'Success'
+      );
+      
     } catch (error) {
-      console.error('Error finishing slope measurement:', error);
-      alert('Error calculating slope. Please try again.');
+      console.error('Error measuring slope:', error);
+      await showAlert('Error measuring slope: ' + error.message, 'Error');
     }
-  };
-
-  const cancelSlopeMeasurement = async () => {
-    if (slopeLine) {
-      try {
-        await window.miro.board.remove({ id: slopeLine });
-      } catch (error) {
-        console.error('Error removing slope line:', error);
-      }
-    }
-    setSlopePoints([]);
-    setSlopeLine(null);
-    setMode('none');
   };
 
   // Multiple Scale Regions Functions
@@ -2531,11 +2738,251 @@ export default function PanelPage() {
     setActiveScaleRegion(region);
   };
 
+  // NEW: Detect scale regions from Miro groups and frames
+  const detectGroupBasedScaleRegions = async () => {
+    try {
+      alert(
+        'Detecting scale regions from groups and frames...\n\n' +
+        'How it works:\n' +
+        '1. Each GROUP with a calibration line = separate scale region\n' +
+        '2. Each FRAME with contents = separate scale region\n' +
+        '3. Measurements inside a group/frame use that region\'s calibration\n\n' +
+        'Select a group or frame that contains a calibration line to set it up!'
+      );
+
+      // Get user selection
+      const selection = await window.miro.board.getSelection();
+      
+      if (selection.length === 0) {
+        alert('Please select a group or frame that contains items with a calibration line.');
+        return;
+      }
+
+      // Check if selection is a frame
+      const frame = selection.find(item => item.type === 'frame');
+      
+      if (frame) {
+        // User selected a frame - set up scale region for this frame
+        await setupFrameAsScaleRegion(frame);
+        return;
+      }
+
+      // If not a frame, check if items are grouped
+      // Get all items and check if they belong to the same parent group
+      const firstItem = selection[0];
+      
+      // Check if item has a parent (is part of a group)
+      if (firstItem.parentId) {
+        await setupGroupAsScaleRegion(firstItem.parentId, selection);
+      } else {
+        alert(
+          'The selected items are not grouped.\n\n' +
+          'To use automatic scale regions:\n' +
+          '1. Group your calibration line with the drawing area\n' +
+          '2. Or place items inside a Frame\n' +
+          '3. Then measurements inside will use that region\'s calibration'
+        );
+      }
+    } catch (error) {
+      console.error('Error detecting group-based scale regions:', error);
+      alert('Error: ' + error.message);
+    }
+  };
+
+  const setupFrameAsScaleRegion = async (frame) => {
+    try {
+      // Look for a calibration line inside the frame
+      const frameChildren = await window.miro.board.get({ 
+        type: 'connector',
+        // Filter items within frame bounds
+      });
+
+      const calibrationLine = frameChildren.find(item => {
+        const caption = item.captions?.[0]?.content || '';
+        return caption.includes('Calibration:') &&
+               item.x >= frame.x - frame.width / 2 &&
+               item.x <= frame.x + frame.width / 2 &&
+               item.y >= frame.y - frame.height / 2 &&
+               item.y <= frame.y + frame.height / 2;
+      });
+
+      if (!calibrationLine) {
+        alert(
+          'No calibration line found in this frame.\n\n' +
+          'Please add a calibration line inside the frame first.'
+        );
+        return;
+      }
+
+      // Parse calibration from the line
+      const calibrationData = await parseCalibrationFromLine(calibrationLine);
+      
+      if (!calibrationData) {
+        alert('Could not parse calibration data from the line.');
+        return;
+      }
+
+      // Create scale region for this frame
+      const newRegion = {
+        regionId: frame.id,
+        name: frame.title || `Frame ${scaleRegions.length + 1}`,
+        type: 'frame',
+        frameId: frame.id,
+        calibration: calibrationData,
+        bounds: {
+          x: frame.x,
+          y: frame.y,
+          width: frame.width,
+          height: frame.height
+        },
+        timestamp: new Date().toISOString()
+      };
+
+      setScaleRegions([...scaleRegions, newRegion]);
+      setActiveScaleRegion(newRegion);
+
+      alert(
+        `✓ Frame scale region created!\n\n` +
+        `Name: ${newRegion.name}\n` +
+        `Calibration: ${formatMeasurement(calibrationData.actualDistance, calibrationData.unit, true)}\n\n` +
+        `All measurements inside this frame will use this calibration automatically!`
+      );
+    } catch (error) {
+      console.error('Error setting up frame as scale region:', error);
+      alert('Error: ' + error.message);
+    }
+  };
+
+  const setupGroupAsScaleRegion = async (groupId, items) => {
+    try {
+      // Find calibration line in the group
+      const calibrationLine = items.find(item => {
+        if (item.type !== 'connector') return false;
+        const caption = item.captions?.[0]?.content || '';
+        return caption.includes('Calibration:');
+      });
+
+      if (!calibrationLine) {
+        alert(
+          'No calibration line found in this group.\n\n' +
+          'Please group your calibration line with the items you want to measure.'
+        );
+        return;
+      }
+
+      // Parse calibration from the line
+      const calibrationData = await parseCalibrationFromLine(calibrationLine);
+      
+      if (!calibrationData) {
+        alert('Could not parse calibration data from the line.');
+        return;
+      }
+
+      // Calculate bounds of the group
+      const bounds = calculateGroupBounds(items);
+
+      // Create scale region for this group
+      const newRegion = {
+        regionId: groupId,
+        name: `Group ${scaleRegions.length + 1}`,
+        type: 'group',
+        groupId: groupId,
+        calibration: calibrationData,
+        bounds: bounds,
+        timestamp: new Date().toISOString()
+      };
+
+      setScaleRegions([...scaleRegions, newRegion]);
+      setActiveScaleRegion(newRegion);
+
+      alert(
+        `✓ Group scale region created!\n\n` +
+        `Calibration: ${formatMeasurement(calibrationData.actualDistance, calibrationData.unit, true)}\n\n` +
+        `Measurements near this group will use this calibration automatically!`
+      );
+    } catch (error) {
+      console.error('Error setting up group as scale region:', error);
+      alert('Error: ' + error.message);
+    }
+  };
+
+  const parseCalibrationFromLine = async (line) => {
+    try {
+      const caption = line.captions?.[0]?.content || '';
+      const calibrationMatch = caption.match(/Calibration:\s*([0-9.'"\s]+)\s*([a-z]+)?/i);
+      
+      if (!calibrationMatch) return null;
+      
+      let calibrationText = calibrationMatch[1].trim();
+      let unit = calibrationMatch[2] || 'ft';
+      
+      const actualDistance = parseFeetInches(calibrationText) || parseFloat(calibrationText);
+      
+      if (!actualDistance || actualDistance <= 0) return null;
+      
+      // Calculate pixel distance
+      const start = line.start.position;
+      const end = line.end.position;
+      const pixelDistance = Math.sqrt(
+        Math.pow(end.x - start.x, 2) + 
+        Math.pow(end.y - start.y, 2)
+      );
+      
+      return {
+        pixelsPerUnit: pixelDistance / actualDistance,
+        pixelDistance: pixelDistance,
+        actualDistance: actualDistance,
+        unit: unit
+      };
+    } catch (error) {
+      console.error('Error parsing calibration from line:', error);
+      return null;
+    }
+  };
+
+  const calculateGroupBounds = (items) => {
+    if (items.length === 0) return null;
+    
+    let minX = Infinity, minY = Infinity;
+    let maxX = -Infinity, maxY = -Infinity;
+    
+    items.forEach(item => {
+      const halfWidth = (item.width || 0) / 2;
+      const halfHeight = (item.height || 0) / 2;
+      
+      minX = Math.min(minX, item.x - halfWidth);
+      maxX = Math.max(maxX, item.x + halfWidth);
+      minY = Math.min(minY, item.y - halfHeight);
+      maxY = Math.max(maxY, item.y + halfHeight);
+    });
+    
+    return {
+      x: (minX + maxX) / 2,
+      y: (minY + maxY) / 2,
+      width: maxX - minX,
+      height: maxY - minY
+    };
+  };
+
   const getCalibrationForPoint = (x, y) => {
-    // Check if point is inside any scale region
+    // Check if point is inside any scale region (group or frame)
     for (const region of scaleRegions) {
-      if (isPointInPolygon({ x, y }, region.points)) {
-        return region.calibration;
+      if (region.type === 'frame' || region.type === 'group') {
+        // Check if point is within bounds
+        const halfWidth = region.bounds.width / 2;
+        const halfHeight = region.bounds.height / 2;
+        
+        if (x >= region.bounds.x - halfWidth &&
+            x <= region.bounds.x + halfWidth &&
+            y >= region.bounds.y - halfHeight &&
+            y <= region.bounds.y + halfHeight) {
+          return region.calibration;
+        }
+      } else if (region.points) {
+        // Legacy polygon-based regions
+        if (isPointInPolygon({ x, y }, region.points)) {
+          return region.calibration;
+        }
       }
     }
     // Fall back to global calibration
@@ -2592,425 +3039,655 @@ export default function PanelPage() {
               <div style={styles.brandTagline}>Professional Measurement Tool</div>
             </div>
           </div>
+          <button
+            onClick={() => setDarkMode(!darkMode)}
+            style={{
+              padding: '8px 12px',
+              border: 'none',
+              borderRadius: '8px',
+              background: darkMode ? '#2c2c2e' : 'white',
+              color: darkMode ? '#ffffff' : '#4a5568',
+              cursor: 'pointer',
+              fontSize: '18px',
+              transition: 'all 0.2s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '6px'
+            }}
+            title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+          >
+            {darkMode ? '☀️' : '🌙'}
+          </button>
         </header>
+
+        {/* Set Calibration Distance Button - shown when in calibrate mode */}
+        {mode === 'calibrate' && calibrationLine && (
+          <div style={{
+            background: darkMode ? '#2c2c2e' : 'white',
+            borderRadius: '12px',
+            padding: '16px',
+            boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.4)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+            marginBottom: '12px'
+          }}>
+            <button
+              onClick={finishCalibration}
+              style={{
+                ...styles.btnPrimary,
+                padding: '12px 20px',
+                fontSize: '14px',
+                width: '100%'
+              }}
+            >
+              ✓ Set Calibration Distance
+            </button>
+            <p style={{marginTop: '8px', color: darkMode ? '#8e8e93' : '#718096', fontSize: '11px', textAlign: 'center'}}>
+              Drag the line endpoints to match a known distance on your image
+            </p>
+          </div>
+        )}
+
+        {/* Calculate Measurement Button - shown when in measure mode */}
+        {mode === 'measure' && calibrationLine && (
+          <div style={{
+            background: darkMode ? '#2c2c2e' : 'white',
+            borderRadius: '12px',
+            padding: '16px',
+            boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.4)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+            marginBottom: '12px'
+          }}>
+            <button
+              onClick={finishMeasurement}
+              style={{
+                ...styles.btnPrimary,
+                padding: '12px 20px',
+                fontSize: '14px',
+                width: '100%'
+              }}
+            >
+              📐 Calculate Measurement
+            </button>
+            <p style={{marginTop: '8px', color: darkMode ? '#8e8e93' : '#718096', fontSize: '11px', textAlign: 'center'}}>
+              Drag the line endpoints to the points you want to measure
+            </p>
+          </div>
+        )}
 
         {/* Main Panel */}
         <main style={styles.panel}>
           <h2 style={styles.panelTitle}>Measurement Tools</h2>
-          <div style={styles.toolsGrid}>
-            {/* Select Image */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'select' ? styles.toolCardHover : {})
-              }}
-              onClick={selectImage}
-              onMouseEnter={() => setHoveredCard('select')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon1}}>
-                <MdImage size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Select Image</div>
-                <div style={styles.toolDescription}>
-                  {selectedImage ? '✓ Image selected' : 'Optional: Select reference image'}
+          
+          {/* Compact Tool Sections */}
+          <div style={{display: 'flex', flexDirection: 'column', gap: '8px'}}>
+            
+            {/* CALIBRATION SECTION */}
+            <div style={{
+              background: darkMode ? '#1c1c1e' : 'white',
+              borderRadius: '12px',
+              padding: '12px',
+              boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+              border: darkMode ? '2px solid #3a3a3c' : '2px solid #e2e8f0'
+            }}>
+              <div 
+                onClick={() => setExpandedSection(expandedSection === 'calibration' ? null : 'calibration')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                  padding: '4px'
+                }}
+              >
+                <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                  <div style={{...styles.toolIcon, ...styles.toolIcon2, width: '32px', height: '32px'}}>
+                    <MdSettings size={20} />
+                  </div>
+                  <div>
+                    <div style={{fontWeight: '600', fontSize: '14px', color: darkMode ? '#ffffff' : '#1a202c'}}>
+                      Calibration {calibration && '✓'}
+                    </div>
+                    <div style={{fontSize: '11px', color: darkMode ? '#8e8e93' : '#718096'}}>
+                      {calibration ? 'Ready to measure' : 'Set scale first'}
+                    </div>
+                  </div>
+                </div>
+                <div style={{fontSize: '18px', color: darkMode ? '#8e8e93' : '#718096'}}>
+                  {expandedSection === 'calibration' ? '▼' : '▶'}
                 </div>
               </div>
+              
+              {expandedSection === 'calibration' && (
+                <div style={{marginTop: '12px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px'}}>
+                  <button
+                    onClick={startCalibration}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: 'pointer',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10bb82'}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                  >
+                    <MdEdit size={20} />
+                    <span style={{fontSize: '12px', fontWeight: '600', textAlign: 'center'}}>Draw Line</span>
+                  </button>
+                  
+                  <button
+                    onClick={selectExistingCalibration}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: 'pointer',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10bb82'}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                  >
+                    <MdContentCopy size={20} />
+                    <span style={{fontSize: '12px', fontWeight: '600', textAlign: 'center'}}>Reuse Line</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => setShowScalePresetsModal(true)}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: 'pointer',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10bb82'}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                  >
+                    <TbClipboardList size={20} />
+                    <span style={{fontSize: '12px', fontWeight: '600', textAlign: 'center'}}>Presets</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => calibrationLineId && updateCalibration()}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: calibrationLineId ? 'pointer' : 'not-allowed',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748',
+                      opacity: calibrationLineId ? 1 : 0.5
+                    }}
+                    onMouseEnter={(e) => calibrationLineId && (e.currentTarget.style.borderColor = '#10bb82')}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                  >
+                    <MdRefresh size={20} />
+                    <span style={{fontSize: '12px', fontWeight: '600', textAlign: 'center'}}>Update</span>
+                  </button>
+                  
+                  <button
+                    onClick={detectGroupBasedScaleRegions}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: 'pointer',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748',
+                      gridColumn: '1 / -1'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10bb82'}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = '#2d3748'}
+                    title="Use Miro groups or frames as scale regions"
+                  >
+                    <TbLayoutGridAdd size={20} />
+                    <span style={{fontSize: '12px', fontWeight: '600', textAlign: 'center'}}>
+                      Group/Frame Regions {scaleRegions.length > 0 && `(${scaleRegions.length})`}
+                    </span>
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Scale Presets */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'scalePresets' ? styles.toolCardHover : {})
-              }}
-              onClick={() => setShowScalePresetsModal(true)}
-              onMouseEnter={() => setHoveredCard('scalePresets')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon1}}>
-                <TbClipboardList size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Scale Presets</div>
-                <div style={styles.toolDescription}>
-                  Scale templates
+            {/* LINEAR MEASUREMENTS SECTION */}
+            <div style={{
+              background: darkMode ? '#1c1c1e' : 'white',
+              borderRadius: '12px',
+              padding: '12px',
+              boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+              border: darkMode ? '2px solid #3a3a3c' : '2px solid #e2e8f0'
+            }}>
+              <div 
+                onClick={() => setExpandedSection(expandedSection === 'linear' ? null : 'linear')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                  padding: '4px'
+                }}
+              >
+                <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                  <div style={{...styles.toolIcon, ...styles.toolIcon1, width: '32px', height: '32px'}}>
+                    <MdBarChart size={20} />
+                  </div>
+                  <div>
+                    <div style={{fontWeight: '600', fontSize: '14px', color: darkMode ? '#ffffff' : '#1a202c'}}>
+                      Linear Measurements
+                    </div>
+                    <div style={{fontSize: '11px', color: darkMode ? '#8e8e93' : '#718096'}}>
+                      Distance, paths, angles & slopes
+                    </div>
+                  </div>
+                </div>
+                <div style={{fontSize: '18px', color: darkMode ? '#8e8e93' : '#718096'}}>
+                  {expandedSection === 'linear' ? '▼' : '▶'}
                 </div>
               </div>
+              
+              {expandedSection === 'linear' && (
+                <div style={{marginTop: '12px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px'}}>
+                  <button
+                    onClick={() => calibration && startMeasurement()}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: calibration ? 'pointer' : 'not-allowed',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748',
+                      opacity: calibration ? 1 : 0.5
+                    }}
+                    onMouseEnter={(e) => calibration && (e.currentTarget.style.borderColor = '#10bb82')}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                    title="Measure distance between two points"
+                  >
+                    <MdBarChart size={20} />
+                    <span style={{fontSize: '11px', fontWeight: '600', textAlign: 'center'}}>Distance</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => calibration && startPolylineMeasurement()}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: calibration ? 'pointer' : 'not-allowed',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748',
+                      opacity: calibration ? 1 : 0.5
+                    }}
+                    onMouseEnter={(e) => calibration && (e.currentTarget.style.borderColor = '#10bb82')}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                    title="Measure multi-segment path length"
+                  >
+                    <TbVectorBezier2 size={20} />
+                    <span style={{fontSize: '11px', fontWeight: '600', textAlign: 'center'}}>Path</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => calibration && startAngleMeasurement()}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: calibration ? 'pointer' : 'not-allowed',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748',
+                      opacity: calibration ? 1 : 0.5
+                    }}
+                    onMouseEnter={(e) => calibration && (e.currentTarget.style.borderColor = '#10bb82')}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                    title="Measure angle between three points"
+                  >
+                    <TbAngle size={20} />
+                    <span style={{fontSize: '11px', fontWeight: '600', textAlign: 'center'}}>Angle</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => calibration && startSlopeMeasurement()}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: calibration ? 'pointer' : 'not-allowed',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748',
+                      opacity: calibration ? 1 : 0.5
+                    }}
+                    onMouseEnter={(e) => calibration && (e.currentTarget.style.borderColor = '#10bb82')}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                    title="Measure slope/pitch (rise over run)"
+                  >
+                    <TbStairs size={20} />
+                    <span style={{fontSize: '11px', fontWeight: '600', textAlign: 'center'}}>Slope</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => calibration && startCircleMeasurement()}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: calibration ? 'pointer' : 'not-allowed',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748',
+                      opacity: calibration ? 1 : 0.5
+                    }}
+                    onMouseEnter={(e) => calibration && (e.currentTarget.style.borderColor = '#10bb82')}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                    title="Measure circle radius, diameter, circumference"
+                  >
+                    <TbCircle size={20} />
+                    <span style={{fontSize: '11px', fontWeight: '600', textAlign: 'center'}}>Circle</span>
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* Calibrate */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'calibrate' ? styles.toolCardHover : {})
-              }}
-              onClick={startCalibration}
-              onMouseEnter={() => setHoveredCard('calibrate')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon2}}>
-                <MdSettings size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Calibrate</div>
-                <div style={styles.toolDescription}>
-                  {calibration ? '✓ Calibrated' : 'Set measurement scale'}
+            {/* AREA & VOLUME SECTION */}
+            <div style={{
+              background: darkMode ? '#1c1c1e' : 'white',
+              borderRadius: '12px',
+              padding: '12px',
+              boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+              border: darkMode ? '2px solid #3a3a3c' : '2px solid #e2e8f0'
+            }}>
+              <div 
+                onClick={() => setExpandedSection(expandedSection === 'area' ? null : 'area')}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  cursor: 'pointer',
+                  padding: '4px'
+                }}
+              >
+                <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                  <div style={{...styles.toolIcon, ...styles.toolIcon3, width: '32px', height: '32px'}}>
+                    <TbSquare size={20} />
+                  </div>
+                  <div>
+                    <div style={{fontWeight: '600', fontSize: '14px', color: darkMode ? '#ffffff' : '#1a202c'}}>
+                      Area & Volume
+                    </div>
+                    <div style={{fontSize: '11px', color: darkMode ? '#8e8e93' : '#718096'}}>
+                      Areas, volumes, cutouts & circles
+                    </div>
+                  </div>
+                </div>
+                <div style={{fontSize: '18px', color: darkMode ? '#8e8e93' : '#718096'}}>
+                  {expandedSection === 'area' ? '▼' : '▶'}
                 </div>
               </div>
-            </div>
-
-            {/* Update Calibration */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'updateCalibration' ? styles.toolCardHover : {}),
-                ...(calibrationLineId ? {} : {opacity: 0.5, cursor: 'not-allowed'})
-              }}
-              onClick={() => calibrationLineId && updateCalibration()}
-              onMouseEnter={() => setHoveredCard('updateCalibration')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon2}}>
-                <MdRefresh size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Update Calibration</div>
-                <div style={styles.toolDescription}>
-                  Recalibrate moved line
+              
+              {expandedSection === 'area' && (
+                <div style={{marginTop: '12px', display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px'}}>
+                  <button
+                    onClick={() => calibration && startAreaMeasurement()}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: calibration ? 'pointer' : 'not-allowed',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748',
+                      opacity: calibration ? 1 : 0.5
+                    }}
+                    onMouseEnter={(e) => calibration && (e.currentTarget.style.borderColor = '#10bb82')}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                    title="Measure polygon area"
+                  >
+                    <TbSquare size={20} />
+                    <span style={{fontSize: '12px', fontWeight: '600', textAlign: 'center'}}>Area</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => calibration && startVolumeMeasurement()}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: calibration ? 'pointer' : 'not-allowed',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748',
+                      opacity: calibration ? 1 : 0.5
+                    }}
+                    onMouseEnter={(e) => calibration && (e.currentTarget.style.borderColor = '#10bb82')}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                    title="Calculate volume (area × height)"
+                  >
+                    <TbCube size={20} />
+                    <span style={{fontSize: '12px', fontWeight: '600', textAlign: 'center'}}>Volume</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => calibration && startCutoutArea()}
+                    style={{
+                      ...styles.toolCard,
+                      padding: '12px 8px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '6px',
+                      cursor: calibration ? 'pointer' : 'not-allowed',
+                      border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                      background: darkMode ? '#1c1c1e' : '#f8fafc',
+                      color: darkMode ? '#ffffff' : '#2d3748',
+                      opacity: calibration ? 1 : 0.5
+                    }}
+                    onMouseEnter={(e) => calibration && (e.currentTarget.style.borderColor = '#10bb82')}
+                    onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                    title="Measure area with exclusions/holes"
+                  >
+                    <TbLayersDifference size={20} />
+                    <span style={{fontSize: '12px', fontWeight: '600', textAlign: 'center'}}>Cutouts</span>
+                  </button>
                 </div>
-              </div>
+              )}
             </div>
 
-            {/* Measure */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'measure' ? styles.toolCardHover : {}),
-                ...(calibration ? {} : {opacity: 0.5, cursor: 'not-allowed'})
-              }}
-              onClick={() => calibration && startMeasurement()}
-              onMouseEnter={() => setHoveredCard('measure')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon3}}>
-                <TbRuler size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Measure</div>
-                <div style={styles.toolDescription}>
-                  {mode === 'measure' ? 'Click two points...' : 'Take measurements'}
-                </div>
-              </div>
-            </div>
-
-            {/* View All Units */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'units' ? styles.toolCardHover : {})
-              }}
-              onClick={() => {
-                if (latestMeasurement) {
-                  setShowUnitsModal(true);
-                } else {
-                  alert('No measurements yet. Take a measurement first!');
-                }
-              }}
-              onMouseEnter={() => setHoveredCard('units')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon4}}>
-                <MdBarChart size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>View All Units</div>
-                <div style={styles.toolDescription}>Browse measurement conversions</div>
-              </div>
-            </div>
-
-            {/* Update Selected Measurement */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'update' ? styles.toolCardHover : {})
-              }}
-              onClick={updateSelectedMeasurement}
-              onMouseEnter={() => setHoveredCard('update')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon3}}>
-                <MdEdit size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Update Selected</div>
-                <div style={styles.toolDescription}>Recalculate moved measurement</div>
-              </div>
-            </div>
-
-            {/* Area Measurement */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'area' ? styles.toolCardHover : {}),
-                ...(calibration ? {} : {opacity: 0.5, cursor: 'not-allowed'})
-              }}
-              onClick={() => calibration && startAreaMeasurement()}
-              onMouseEnter={() => setHoveredCard('area')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon2}}>
-                <TbRectangle size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Measure Area</div>
-                <div style={styles.toolDescription}>
-                  {mode === 'area' ? `${areaPoints.length} points` : 'Click points to define area'}
-                </div>
-              </div>
-            </div>
-
-            {/* Count Tool */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'count' ? styles.toolCardHover : {}),
-                ...(calibration ? {} : {opacity: 0.5, cursor: 'not-allowed'})
-              }}
-              onClick={() => calibration && startCountTool()}
-              onMouseEnter={() => setHoveredCard('count')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon1}}>
-                <TbNumbers size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Count Items</div>
-                <div style={styles.toolDescription}>
-                  {mode === 'count' ? `Count: ${countTotal}` : 'Mark and count items'}
-                </div>
-              </div>
-            </div>
-
-            {/* Polyline Measurement */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'polyline' ? styles.toolCardHover : {}),
-                ...(calibration ? {} : {opacity: 0.5, cursor: 'not-allowed'})
-              }}
-              onClick={() => calibration && startPolylineMeasurement()}
-              onMouseEnter={() => setHoveredCard('polyline')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon3}}>
-                <TbWaveSine size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Polyline Path</div>
-                <div style={styles.toolDescription}>
-                  {mode === 'polyline' ? `${polylinePoints.length} points` : 'Multi-segment measurement'}
-                </div>
-              </div>
-            </div>
-
-            {/* Volume Measurement */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'volume' ? styles.toolCardHover : {}),
-                ...(calibration ? {} : {opacity: 0.5, cursor: 'not-allowed'})
-              }}
-              onClick={() => calibration && startVolumeMeasurement()}
-              onMouseEnter={() => setHoveredCard('volume')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon2}}>
-                <TbBox size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Measure Volume</div>
-                <div style={styles.toolDescription}>
-                  {mode === 'volume' ? 'Define base area' : 'Base area + height'}
-                </div>
-              </div>
-            </div>
-
-            {/* Angle Measurement */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'angle' ? styles.toolCardHover : {}),
-                ...(calibration ? {} : {opacity: 0.5, cursor: 'not-allowed'})
-              }}
-              onClick={() => calibration && startAngleMeasurement()}
-              onMouseEnter={() => setHoveredCard('angle')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon3}}>
-                <TbAngle size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Measure Angle</div>
-                <div style={styles.toolDescription}>
-                  {mode === 'angle' ? `${anglePoints.length}/3 points` : 'Click 3 points for angle'}
-                </div>
-              </div>
-            </div>
-
-            {/* Circle Measurement */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'circle' ? styles.toolCardHover : {}),
-                ...(calibration ? {} : {opacity: 0.5, cursor: 'not-allowed'})
-              }}
-              onClick={() => calibration && startCircleMeasurement()}
-              onMouseEnter={() => setHoveredCard('circle')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon1}}>
-                <TbCircle size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Measure Circle</div>
-                <div style={styles.toolDescription}>
-                  {mode === 'circle' ? (circleCenter ? 'Click edge' : 'Click center') : 'Center + edge point'}
-                </div>
-              </div>
-            </div>
-
-            {/* Cutout/Subtract Areas */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'cutout' ? styles.toolCardHover : {}),
-                ...(calibration ? {} : {opacity: 0.5, cursor: 'not-allowed'})
-              }}
-              onClick={() => calibration && startCutoutArea()}
-              onMouseEnter={() => setHoveredCard('cutout')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon2}}>
-                <TbLayersDifference size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Cutout Areas</div>
-                <div style={styles.toolDescription}>
-                  {mode === 'cutout' ? (cutoutMode === 'main' ? `Main: ${cutoutMainPoints.length} pts` : `Cutout: ${cutoutPolygons.length} done`) : 'Area with exclusions'}
-                </div>
-              </div>
-            </div>
-
-            {/* Slope/Pitch Measurement */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'slope' ? styles.toolCardHover : {}),
-                ...(calibration ? {} : {opacity: 0.5, cursor: 'not-allowed'})
-              }}
-              onClick={() => calibration && startSlopeMeasurement()}
-              onMouseEnter={() => setHoveredCard('slope')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon3}}>
-                <TbStairs size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Slope/Pitch</div>
-                <div style={styles.toolDescription}>
-                  {mode === 'slope' ? `${slopePoints.length}/2 points` : 'Rise over run'}
-                </div>
-              </div>
-            </div>
-
-            {/* Scale Regions Management */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'scaleRegions' ? styles.toolCardHover : {})
-              }}
-              onClick={() => setShowScaleRegionsModal(true)}
-              onMouseEnter={() => setHoveredCard('scaleRegions')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon3}}>
-                <TbLayoutGridAdd size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Scale Regions</div>
-                <div style={styles.toolDescription}>
-                  {scaleRegions.length > 0 ? `Manage ${scaleRegions.length} region${scaleRegions.length > 1 ? 's' : ''}` : 'Define scale regions'}
-                </div>
-              </div>
-            </div>
-
-            {/* Export Measurements */}
-            <div
-              style={{
-                ...styles.toolCard,
-                ...(hoveredCard === 'export' ? styles.toolCardHover : {}),
-                ...(measurements.length > 0 ? {} : {opacity: 0.5, cursor: 'not-allowed'})
-              }}
-              onClick={() => measurements.length > 0 && exportMeasurementsToCSV()}
-              onMouseEnter={() => setHoveredCard('export')}
-              onMouseLeave={() => setHoveredCard(null)}
-            >
-              <div style={{...styles.toolIcon, ...styles.toolIcon4}}>
-                <MdSave size={24} />
-              </div>
-              <div style={styles.toolContent}>
-                <div style={styles.toolName}>Export Data</div>
-                <div style={styles.toolDescription}>
-                  {measurements.length > 0 ? `Download ${measurements.length} measurements` : 'No measurements yet'}
-                </div>
+            {/* UTILITIES SECTION */}
+            <div style={{
+              background: darkMode ? '#1c1c1e' : 'white',
+              borderRadius: '12px',
+              padding: '12px',
+              boxShadow: darkMode ? '0 1px 3px rgba(0, 0, 0, 0.3)' : '0 1px 3px rgba(0, 0, 0, 0.05)',
+              border: darkMode ? '2px solid #3a3a3c' : '2px solid #e2e8f0'
+            }}>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px'}}>
+                <button
+                  onClick={selectImage}
+                  style={{
+                    ...styles.toolCard,
+                    padding: '12px 8px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '6px',
+                    cursor: 'pointer',
+                    border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                    background: darkMode ? '#1c1c1e' : '#f8fafc',
+                    color: darkMode ? '#ffffff' : '#2d3748'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10bb82'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                  title="Select reference image"
+                >
+                  <MdImage size={20} />
+                  <span style={{fontSize: '11px', fontWeight: '600', textAlign: 'center'}}>
+                    {selectedImage ? '✓ Image' : 'Image'}
+                  </span>
+                </button>
+                
+                <button
+                  onClick={() => calibration && startCountTool()}
+                  style={{
+                    ...styles.toolCard,
+                    padding: '12px 8px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '6px',
+                    cursor: calibration ? 'pointer' : 'not-allowed',
+                    border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                    background: darkMode ? '#1c1c1e' : '#f8fafc',
+                    color: darkMode ? '#ffffff' : '#2d3748',
+                    opacity: calibration ? 1 : 0.5
+                  }}
+                  onMouseEnter={(e) => calibration && (e.currentTarget.style.borderColor = '#10bb82')}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                  title="Count items on board"
+                >
+                  <TbNumbers size={20} />
+                  <span style={{fontSize: '11px', fontWeight: '600', textAlign: 'center'}}>
+                    Count {mode === 'count' && `(${countTotal})`}
+                  </span>
+                </button>
+                
+                <button
+                  onClick={() => {
+                    if (latestMeasurement) {
+                      setShowUnitsModal(true);
+                    } else {
+                      alert('No measurements yet. Take a measurement first!');
+                    }
+                  }}
+                  style={{
+                    ...styles.toolCard,
+                    padding: '12px 8px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '6px',
+                    cursor: 'pointer',
+                    border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                    background: darkMode ? '#1c1c1e' : '#f8fafc',
+                    color: darkMode ? '#ffffff' : '#2d3748'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10bb82'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                  title="View all unit conversions"
+                >
+                  <MdBarChart size={20} />
+                  <span style={{fontSize: '11px', fontWeight: '600', textAlign: 'center'}}>Units</span>
+                </button>
+                
+                <button
+                  onClick={updateSelectedMeasurement}
+                  style={{
+                    ...styles.toolCard,
+                    padding: '12px 8px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '6px',
+                    cursor: 'pointer',
+                    border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                    background: darkMode ? '#1c1c1e' : '#f8fafc',
+                    color: darkMode ? '#ffffff' : '#2d3748'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.borderColor = '#10bb82'}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                  title="Recalculate moved measurement"
+                >
+                  <MdEdit size={20} />
+                  <span style={{fontSize: '11px', fontWeight: '600', textAlign: 'center'}}>Update</span>
+                </button>
+                
+                <button
+                  onClick={() => measurements.length > 0 && exportMeasurementsToCSV()}
+                  style={{
+                    ...styles.toolCard,
+                    padding: '12px 8px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '6px',
+                    cursor: measurements.length > 0 ? 'pointer' : 'not-allowed',
+                    border: darkMode ? '2px solid #3a3a3c' : '2px solid #2d3748',
+                    background: darkMode ? '#1c1c1e' : '#f8fafc',
+                    color: darkMode ? '#ffffff' : '#2d3748',
+                    opacity: measurements.length > 0 ? 1 : 0.5,
+                    gridColumn: '2 / 4'
+                  }}
+                  onMouseEnter={(e) => measurements.length > 0 && (e.currentTarget.style.borderColor = '#10bb82')}
+                  onMouseLeave={(e) => e.currentTarget.style.borderColor = darkMode ? '#3a3a3c' : '#2d3748'}
+                  title="Export measurements to CSV"
+                >
+                  <MdSave size={20} />
+                  <span style={{fontSize: '11px', fontWeight: '600', textAlign: 'center'}}>
+                    Export {measurements.length > 0 && `(${measurements.length})`}
+                  </span>
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Action Buttons for Calibrate/Measure */}
-          {mode === 'calibrate' && calibrationLine && (
-            <div style={{marginTop: '12px', textAlign: 'center'}}>
-              <button
-                onClick={finishCalibration}
-                style={{
-                  ...styles.btnPrimary,
-                  padding: '10px 20px',
-                  fontSize: '13px',
-                  width: '100%'
-                }}
-              >
-                ✓ Set Calibration Distance
-              </button>
-              <p style={{marginTop: '8px', color: '#718096', fontSize: '11px'}}>
-                Drag the line endpoints to match a known distance on your image
-              </p>
-            </div>
-          )}
-
-          {mode === 'measure' && calibrationLine && (
-            <div style={{marginTop: '12px', textAlign: 'center'}}>
-              <button
-                onClick={finishMeasurement}
-                style={{
-                  ...styles.btnPrimary,
-                  padding: '10px 20px',
-                  fontSize: '13px',
-                  width: '100%'
-                }}
-              >
-                📐 Calculate Measurement
-              </button>
-              <p style={{marginTop: '8px', color: '#718096', fontSize: '11px'}}>
-                Drag the line endpoints to the points you want to measure
-              </p>
-            </div>
-          )}
-
           {/* Area Measurement Mode Buttons */}
           {mode === 'area' && (
             <div style={{marginTop: '12px', textAlign: 'center'}}>
+              <button
+                onClick={promptForAreaPoint}
+                style={{
+                  ...styles.btnPrimary,
+                  padding: '10px 16px',
+                  fontSize: '13px',
+                  marginBottom: '8px',
+                  width: '100%'
+                }}
+              >
+                + Add Point ({areaPoints.length} added)
+              </button>
               <div style={{display: 'flex', gap: '8px'}}>
                 <button
                   onClick={finishAreaMeasurement}
@@ -3021,7 +3698,7 @@ export default function PanelPage() {
                     flex: 1
                   }}
                 >
-                  ✓ Finish Area ({areaPoints.length} points)
+                  ✓ Finish Area
                 </button>
                 <button
                   onClick={cancelAreaMeasurement}
@@ -3074,39 +3751,6 @@ export default function PanelPage() {
             </div>
           )}
 
-          {/* Polyline Measurement Mode Buttons */}
-          {mode === 'polyline' && (
-            <div style={{marginTop: '12px', textAlign: 'center'}}>
-              <div style={{display: 'flex', gap: '8px'}}>
-                <button
-                  onClick={finishPolylineMeasurement}
-                  style={{
-                    ...styles.btnPrimary,
-                    padding: '10px 16px',
-                    fontSize: '13px',
-                    flex: 1
-                  }}
-                >
-                  ✓ Finish Path ({polylinePoints.length} points)
-                </button>
-                <button
-                  onClick={cancelPolylineMeasurement}
-                  style={{
-                    ...styles.btnSecondary,
-                    padding: '10px 16px',
-                    fontSize: '13px',
-                    flex: 1
-                  }}
-                >
-                  Cancel
-                </button>
-              </div>
-              <p style={{marginTop: '8px', color: '#718096', fontSize: '11px'}}>
-                Click on the board to add path points. Need at least 2 points.
-              </p>
-            </div>
-          )}
-
           {/* Volume Measurement Mode Buttons */}
           {mode === 'volume' && !showVolumeModal && (
             <div style={{marginTop: '12px', textAlign: 'center'}}>
@@ -3136,46 +3780,6 @@ export default function PanelPage() {
               </div>
               <p style={{marginTop: '8px', color: '#718096', fontSize: '11px'}}>
                 Click points to define base area, then enter height
-              </p>
-            </div>
-          )}
-
-          {/* Angle Measurement Mode Buttons */}
-          {mode === 'angle' && anglePoints.length < 3 && (
-            <div style={{marginTop: '12px', textAlign: 'center'}}>
-              <button
-                onClick={cancelAngleMeasurement}
-                style={{
-                  ...styles.btnSecondary,
-                  padding: '10px 16px',
-                  fontSize: '13px',
-                  width: '100%'
-                }}
-              >
-                Cancel
-              </button>
-              <p style={{marginTop: '8px', color: '#718096', fontSize: '11px'}}>
-                Click 3 points: Start → Vertex → End ({anglePoints.length}/3)
-              </p>
-            </div>
-          )}
-
-          {/* Circle Measurement Mode Buttons */}
-          {mode === 'circle' && !circleRadius && (
-            <div style={{marginTop: '12px', textAlign: 'center'}}>
-              <button
-                onClick={cancelCircleMeasurement}
-                style={{
-                  ...styles.btnSecondary,
-                  padding: '10px 16px',
-                  fontSize: '13px',
-                  width: '100%'
-                }}
-              >
-                Cancel
-              </button>
-              <p style={{marginTop: '8px', color: '#718096', fontSize: '11px'}}>
-                {circleCenter ? 'Click edge point to define radius' : 'Click center point of circle'}
               </p>
             </div>
           )}
@@ -3257,26 +3861,6 @@ export default function PanelPage() {
                   </p>
                 </>
               )}
-            </div>
-          )}
-
-          {/* Slope/Pitch Mode Buttons */}
-          {mode === 'slope' && slopePoints.length < 2 && (
-            <div style={{marginTop: '12px', textAlign: 'center'}}>
-              <button
-                onClick={cancelSlopeMeasurement}
-                style={{
-                  ...styles.btnSecondary,
-                  padding: '10px 16px',
-                  fontSize: '13px',
-                  width: '100%'
-                }}
-              >
-                Cancel
-              </button>
-              <p style={{marginTop: '8px', color: '#718096', fontSize: '11px'}}>
-                Click 2 points to measure slope: Start → End ({slopePoints.length}/2)
-              </p>
             </div>
           )}
 
@@ -3477,41 +4061,10 @@ export default function PanelPage() {
             <div style={styles.formGroup}>
               <label style={styles.label}>Enter Distance ({calibrationUnit}):</label>
               <input
-                type="number"
+                type="text"
                 value={calibrationValue}
                 onChange={(e) => setCalibrationValue(e.target.value)}
-                placeholder="0.00"
-                step="0.01"
-                style={styles.input}
-                autoFocus
-              />
-            </div>
-
-            <div style={styles.modalButtons}>
-              <div style={styles.unitGrid}>
-                {CONVERSIONS[unitSystem].map((u) => (
-                  <button
-                    key={u.abbr}
-                    onClick={() => setCalibrationUnit(u.abbr)}
-                    style={{
-                      ...styles.unitGridBtn,
-                      ...(calibrationUnit === u.abbr ? styles.unitGridBtnActive : {})
-                    }}
-                  >
-                    {u.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div style={styles.formGroup}>
-              <label style={styles.label}>Enter Distance ({calibrationUnit}):</label>
-              <input
-                type="number"
-                value={calibrationValue}
-                onChange={(e) => setCalibrationValue(e.target.value)}
-                placeholder="0.00"
-                step="0.01"
+                placeholder="e.g., 12.5 or 12' 6&quot; or 6&quot;"
                 style={styles.input}
                 autoFocus
               />
@@ -3685,16 +4238,16 @@ export default function PanelPage() {
                       key={region.regionId}
                       style={{
                         padding: '12px',
-                        border: `2px solid ${activeScaleRegion?.regionId === region.regionId ? '#10bb82' : '#e2e8f0'}`,
+                        border: `2px solid ${activeScaleRegion?.regionId === region.regionId ? '#10bb82' : (darkMode ? '#3a3a3c' : '#e2e8f0')}`,
                         borderRadius: '8px',
-                        background: activeScaleRegion?.regionId === region.regionId ? '#f0fdf4' : 'white',
+                        background: activeScaleRegion?.regionId === region.regionId ? (darkMode ? '#0d3d2d' : '#f0fdf4') : (darkMode ? '#1c1c1e' : 'white'),
                         cursor: 'pointer',
                         transition: 'all 0.2s'
                       }}
                     >
                       <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start'}}>
                         <div style={{flex: 1}} onClick={() => selectScaleRegion(region.regionId)}>
-                          <div style={{fontWeight: '600', color: '#1a202c', fontSize: '14px'}}>
+                          <div style={{fontWeight: '600', color: darkMode ? '#ffffff' : '#1a202c', fontSize: '14px'}}>
                             {region.name}
                           </div>
                           <div style={{fontSize: '12px', color: '#718096', marginTop: '4px'}}>
@@ -3790,6 +4343,75 @@ export default function PanelPage() {
                 <li>Select a region to make it active for measurements</li>
                 <li>Measurements will automatically use the region's scale</li>
               </ol>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Custom Modal (replaces browser alerts/confirms) */}
+      {customModal.show && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0, 0, 0, 0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 10000
+        }}>
+          <div style={{
+            background: darkMode ? '#2c2c2e' : 'white',
+            borderRadius: '12px',
+            padding: '24px',
+            maxWidth: '500px',
+            width: '90%',
+            boxShadow: darkMode ? '0 10px 40px rgba(0, 0, 0, 0.6)' : '0 10px 40px rgba(0, 0, 0, 0.2)'
+          }}>
+            <h3 style={{
+              margin: '0 0 16px 0',
+              fontSize: '18px',
+              fontWeight: '600',
+              color: darkMode ? '#ffffff' : '#1a202c'
+            }}>
+              {customModal.title}
+            </h3>
+            <p style={{
+              margin: '0 0 24px 0',
+              fontSize: '14px',
+              color: darkMode ? '#aeaeb2' : '#4a5568',
+              whiteSpace: 'pre-line',
+              lineHeight: '1.6'
+            }}>
+              {customModal.message}
+            </p>
+            <div style={{
+              display: 'flex',
+              gap: '12px',
+              justifyContent: 'flex-end'
+            }}>
+              {customModal.type === 'confirm' && (
+                <button
+                  onClick={customModal.onCancel}
+                  style={{
+                    ...styles.btnSecondary,
+                    padding: '10px 20px'
+                  }}
+                >
+                  Cancel
+                </button>
+              )}
+              <button
+                onClick={customModal.onConfirm}
+                style={{
+                  ...styles.btnPrimary,
+                  padding: '10px 20px'
+                }}
+              >
+                OK
+              </button>
             </div>
           </div>
         </div>
