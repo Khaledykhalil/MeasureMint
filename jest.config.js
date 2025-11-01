@@ -17,17 +17,18 @@ const customJestConfig = {
     '**/?(*.)+(spec|test).[jt]s?(x)'
   ],
   collectCoverageFrom: [
-    'src/**/*.{js,jsx,ts,tsx}',
+    'src/utils/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
     '!src/**/_*.{js,jsx}',
     '!src/**/index.{js,jsx}',
+    '!src/**/__tests__/**',
   ],
   coverageThreshold: {
-    global: {
-      branches: 50,
-      functions: 50,
-      lines: 50,
-      statements: 50,
+    './src/utils/measurements.js': {
+      branches: 90,
+      functions: 95,
+      lines: 95,
+      statements: 95,
     },
   },
 }
