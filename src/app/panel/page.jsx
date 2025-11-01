@@ -465,6 +465,13 @@ export default function PanelPage() {
   const [calibrationLine, setCalibrationLine] = useState(null);
   const [isFirstMeasurement, setIsFirstMeasurement] = useState(true);
   const showFeetInches = true; // Always show feet-inches format for feet measurements
+  
+  // Volume measurement states (kept for backward compatibility with existing code)
+  const [showVolumeModal, setShowVolumeModal] = useState(false);
+  const [volumeBaseArea, setVolumeBaseArea] = useState(null);
+  const [volumeHeight, setVolumeHeight] = useState('');
+  const [showScalePresetsModal, setShowScalePresetsModal] = useState(false);
+  const [showScaleRegionsModal, setShowScaleRegionsModal] = useState(false);
 
   // Dark mode state
   const [darkMode, setDarkMode] = useState(false);
